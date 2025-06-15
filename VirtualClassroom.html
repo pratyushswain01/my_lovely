@@ -45,27 +45,38 @@
         <!-- The classroom content remains the same -->
         <div class="main-content-wrapper" id="main-content-wrapper"><div class="main-content"><div class="top-bar"><i class="fas fa-graduation-cap"></i><span id="classroom-name-display">UPSChub</span></div><div id="video-grid"></div></div><div class="side-panel" id="side-panel"><div class="side-panel-header"><h3 id="panel-title">Participants</h3><button class="close-btn" onclick="toggleSidePanel()">×</button></div><div id="participants-panel" class="panel-content-area"><ul id="participants-list"></ul></div><div id="chat-panel" class="panel-content-area" style="display: none;"><div class="chat-messages" id="chat-messages"></div><form class="chat-input-form" id="chat-form"><input type="text" id="chat-input" placeholder="Type a message..."><button type="submit"><i class="fas fa-paper-plane"></i></button></form></div></div></div><div class="control-bar"><button class="control-btn" id="mic-btn" onclick="toggleMic()"><i class="fas fa-microphone"></i><span>Mute</span></button><button class="control-btn" id="cam-btn" onclick="toggleCam()"><i class="fas fa-video"></i><span>Video</span></button><button class="control-btn" id="share-btn" onclick="toggleScreenShare()"><i class="fas fa-desktop"></i><span>Share</span></button><button class="control-btn" id="participants-btn" onclick="toggleSidePanel('participants')"><i class="fas fa-users"></i><span>Participants</span></button><button class="control-btn" id="chat-btn" onclick="toggleSidePanel('chat')"><i class="fas fa-comment-dots"></i><span>Chat</span></button><button class="control-btn" id="layout-btn" onclick="toggleLayout()"><i class="fas fa-grip"></i><span>Layout</span></button><button class="control-btn danger" id="leave-btn" onclick="leaveSession()"> <i class="fas fa-phone-slash"></i><span>Leave</span></button></div>
     </div>
+
 <script>
+    // --- DOM Elements ---
     const getEl = id => document.getElementById(id);
     const preJoinScreen = getEl('pre-join-screen'), classroom = getEl('classroom-container'), joinBtn = getEl('join-btn'), nameInput = getEl('name-input'), roomInput = getEl('room-input'), videoGrid = getEl('video-grid'), sidePanel = getEl('side-panel'), mainWrapper = getEl('main-content-wrapper'), pList = getEl('participants-list'), chatPanel = getEl('chat-panel'), pPanel = getEl('participants-panel'), chatForm = getEl('chat-form'), chatInput = getEl('chat-input'), chatMessages = getEl('chat-messages');
+    
+    // --- State Variables ---
     let localStream, screenStream, peer, myName, myPeerId, roomID, currentLayout = 'gallery', pinnedUserId = null, isSharingScreen = false;
     const peers = {}, participants = {};
 
-    
+    // --- Pre-Join Logic (Two-Step Flow) ---
     async function setupPreJoinScreen() {
         try {
+            // 1. Get camera/mic access immediately
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             getEl('video-preview').srcObject = localStream;
             getEl('video-preview').play();
             getEl('video-preview-msg').style.display = 'none';
+            // 2. Enable the join button only after success
             joinBtn.disabled = false;
-        } catch (err) { getEl('video-preview-msg').textContent = "Camera/Mic access denied."; }
-
+        } catch (err) {
+            getEl('video-preview-msg').textContent = "Camera/Mic access denied. Please allow permissions and refresh.";
+            console.error('Failed to get media', err);
+        }
         
+        // 3. Check URL for existing room ID
         roomID = window.location.pathname.substring(1);
         if (roomID) {
+            roomInput.value = roomID;
+            roomInput.disabled = true; // Lock the input if joining a specific room
             getEl('pre-join-title').textContent = `Joining: ${roomID.replace(/-/g, ' ')}`;
-            getEl('pre-join-description').textContent = "Your camera is on. Enter your name to join.";
+            getEl('pre-join-description').textContent = "Your camera is on. Ready to join?";
         } else {
             getEl('pre-join-title').textContent = "Create or Join a Classroom";
             getEl('room-id-form-group').style.display = 'block';
@@ -74,6 +85,7 @@
         nameInput.value = 'Aspirant ' + Math.floor(Math.random() * 100);
     }
     
+    // When join button is clicked, start the main application
     joinBtn.addEventListener('click', () => {
         roomID = roomID || roomInput.value.trim();
         myName = nameInput.value.trim();
@@ -85,7 +97,10 @@
         classroom.style.display = 'flex';
         initialize(roomID);
     });
+    
+    window.addEventListener('load', setupPreJoinScreen);
 
+    // --- Core Application Logic ---
     function initialize(roomID) {
         getEl('classroom-name-display').textContent = `UPSChub | ${roomID.replace(/-/g, ' ')}`;
         const socket = io("https://upschub-zenith.onrender.com");
@@ -96,53 +111,212 @@
             socket.emit('join-room', roomID, id, myName);
         });
 
-        socket.on('user-connected', (id, name) => {
-            addParticipant(id, name);
-            connectToNewUser(id, name, localStream);
-        });
-
+        // Listen for server events
+        socket.on('user-connected', (id, name) => connectToNewUser(id, name, localStream));
         socket.on('user-disconnected', id => removeParticipant(id));
-        
         socket.on('update-participant-list', serverList => updateFullParticipantList(serverList));
-
+        
+        // Listen for incoming calls
         peer.on('call', call => {
             call.answer(localStream);
-            const tile = getEl(`tile-${call.peer}`) || createVideoTile(call.peer);
-            call.on('stream', userStream => addVideoStream(tile, userStream, call.metadata.userName));
+            const tile = getEl(`tile-${call.peer}`) || createVideoTile(call.peer, call.metadata.userName);
+            call.on('stream', userStream => addVideoStream(tile, userStream));
             peers[call.peer] = call;
         });
-
+        
+        // Listen for incoming data connections (chat, etc.)
         peer.on('connection', conn => setupDataConnection(conn));
     }
     
-    function addParticipant(id, name, isSelf = false) {
-        if(getEl(`tile-${id}`)) return;
+    // --- Participant and Stream Management ---
+    function addParticipant(id, name) {
+        if(getEl(`tile-${id}`)) return; // Prevent duplicates
+        participants[id] = { name, isMuted: false, isSpeaking: false };
         const tile = createVideoTile(id, name);
-        if (isSelf) {
+        if (id === myPeerId) {
             addVideoStream(tile, localStream, true);
             setupSpeakingIndicator(tile, localStream);
         }
         updateLayout();
     }
     
-    // All other functions are provided for completeness, based on the last stable version.
-    function removeParticipant(id){delete participants[id],delete peers[id],getEl(`tile-${id}`)?.remove(),pinnedUserId===id&&(pinnedUserId=null),updateLayout()}function addVideoStream(e,t,o=!1){let i=e.querySelector("video");i||(i=document.createElement("video"),e.prepend(i)),i.srcObject=t,i.muted=o,i.className=t.getVideoTracks()[0]?.getSettings().cursor?"video-feed screen":"video-feed",i.play()}
-    function connectToNewUser(id,name,stream){const e=peer.call(id,stream,{metadata:{userName:myName}});const t=createVideoTile(id);e.on("stream",e=>addVideoStream(t,e,name)),e.on("close",()=>removeParticipant(id)),peers[id]=e;const o=peer.connect(id);setupDataConnection(o)}function setupDataConnection(e){e.on("open",()=>{dataConnections[e.peer]=e,e.send({type:"user_info",userId:myPeerId,name:myName,isMuted:!localStream.getAudioTracks()[0].enabled})}),e.on("data",e=>handleDataMessage(e))}function broadcastData(e){Object.values(dataConnections).forEach(t=>t?.send(e))}function handleDataMessage({type:e,userId:t,name:o,isMuted:i,sender:a,message:n}){"user_info"===e&&updateMuteStatus(t,i),"mute_status"===e&&updateMuteStatus(t,i),"chat"===e&&displayChatMessage(a,n)}
-    function createVideoTile(id,name){if(getEl(`tile-${id}`))return getEl(`tile-${id}`);const e=document.createElement("div");return e.id=`tile-${id}`,e.className="participant-tile",e.onclick=()=>pinUser(id),e.innerHTML=`<div class="user-tag"><span>${name}</span><i class="fas fa-microphone-slash mute-icon"></i></div>`,videoGrid.append(e),e}
-    function updateLayout(){const e=Object.keys(participants).length+1;videoGrid.innerHTML="";if(window.innerWidth<=768){let t=pinnedUserId||Object.keys(participants).find(t=>participants[t]?.isSpeaking)||myPeerId;const o=getEl(`tile-${t}`)||createVideoTile(t,participants[t]?.name),i=document.createElement("div");i.className="filmstrip",o.classList.add("speaker-tile"),videoGrid.append(o,i),Object.keys(participants).filter(e=>e!==t).forEach(e=>i.append(getEl(`tile-${e}`)||createVideoTile(e,participants[e]?.name)))}else if("speaker"===currentLayout&&e>1){videoGrid.className="speaker-view";let t=pinnedUserId||Object.keys(participants).find(t=>participants[t]?.isSpeaking)||myPeerId;const o=getEl(`tile-${t}`)||createVideoTile(t,participants[t]?.name),i=document.createElement("div");i.className="filmstrip",o.classList.add("speaker-view-tile"),videoGrid.append(o,i),Object.keys(participants).filter(e=>e!==t).forEach(e=>i.append(getEl(`tile-${e}`)||createVideoTile(e,participants[e]?.name)))}else{videoGrid.className="gallery-view",Object.keys(participants).forEach(t=>videoGrid.append(getEl(`tile-${t}`)||createVideoTile(t,participants[t]?.name)));const t=Math.ceil(Math.sqrt(e)),o=Math.ceil(e/t);videoGrid.style.gridTemplateColumns=`repeat(${t}, 1fr)`,videoGrid.style.gridTemplateRows=`repeat(${o}, 1fr)`}}
-    function pinUser(e){"speaker"===currentLayout&&(pinnedUserId=pinnedUserId===e?null:e,document.querySelectorAll(".participant-tile").forEach(e=>e.classList.remove("is-pinned")),pinnedUserId&&getEl(`tile-${e}`).classList.add("is-pinned"),updateLayout())}
-    function setupSpeakingIndicator(e,t){hark(t,{threshold:-65}).on("speaking",()=>{document.querySelectorAll(".is-speaking").forEach(e=>e.classList.remove("is-speaking")),e.classList.add("is-speaking");const t=e.id.substring(5);if(participants[t])participants[t].isSpeaking=!0;pinnedUserId||updateLayout()})}
-    function updateFullParticipantList(e){pList.innerHTML="",getEl("participants-btn").innerHTML=`<i class="fas fa-users"></i><span>Participants (${e.length})</span>`,e.forEach(e=>{participants[e.peerId]||(participants[e.peerId]={}),participants[e.peerId].name=e.name,updateMuteStatus(e.peerId,e.isMuted);const t=document.createElement("li");t.className="participant-list-item",t.innerHTML=`<i class="fas fa-user"></i><span>${e.name} ${e.peerId===myPeerId?"(You)":""}</span><i class="fas fa-microphone-slash mute-icon"></i>`,t.querySelector(".mute-icon").style.display=e.isMuted?"inline":"none",pList.append(t)}),updateLayout()}
-    function updateMuteStatus(e,t){if(participants[e]){participants[e].isMuted=t;const o=getEl(`tile-${e}`);o&&(o.querySelector(".mute-icon").style.display=t?"flex":"none")}}
-    function toggleMic(){const e=localStream.getAudioTracks()[0],t=!e.enabled;e.enabled=t,getEl("mic-btn").classList.toggle("danger",t),broadcastData({type:"mute_status",userId:myPeerId,isMuted:t}),updateMuteStatus(myPeerId,t)}function toggleCam(){const e=localStream.getVideoTracks()[0];e.enabled=!e.enabled,getEl("cam-btn").classList.toggle("danger",!e.enabled)}
-    async function toggleScreenShare(){const e=getEl("share-btn");if(isSharingScreen){isSharingScreen=!1,e.classList.remove("active"),screenStream.getTracks().forEach(e=>e.stop()),replaceTrack(localStream.getVideoTracks()[0]),document.querySelector(".presenter-pip")?.remove(),pinnedUserId===myPeerId&&(pinnedUserId=null)}else try{screenStream=await navigator.mediaDevices.getDisplayMedia({video:!0,audio:!0}),isSharingScreen=!0,e.classList.add("active"),replaceTrack(screenStream.getVideoTracks()[0],!0),pinUser(myPeerId);const t=document.createElement("div");t.className="presenter-pip",addVideoStream(t,localStream,myName,!0),videoGrid.querySelector(".speaker-view-tile")?.append(t),screenStream.getVideoTracks()[0].onended=()=>toggleScreenShare()}catch(e){console.error("Share failed",e),isSharingScreen=!1,e.classList.remove("active")}updateLayout()}
-    function replaceTrack(e){Object.values(peers).forEach(t=>t.peerConnection.getSenders().find(e=>"video"===e.track.kind)?.replaceTrack(e))}
-    function toggleLayout(){currentLayout=currentLayout==='gallery'?'speaker':'gallery';getEl('layout-btn').querySelector('i').className=currentLayout==='gallery'?'fas fa-grip':'fas fa-th';updateLayout()}
-    function toggleSidePanel(e){const t=getEl("side-panel"),o=getEl("main-content-wrapper");if(e&&t.classList.contains("open")&&getEl("panel-title").textContent.toLowerCase().includes(e))t.classList.remove("open"),o.classList.remove("panel-open");else if(e){t.classList.add("open"),o.classList.add("panel-open"),getEl("panel-title").textContent=e.charAt(0).toUpperCase()+e.slice(1);const i="participants"===e;pPanel.style.display=i?"block":"none",chatPanel.style.display=i?"none":"flex"}else t.classList.remove("open"),o.classList.remove("panel-open")}
-    function leaveSession(){window.location.href=window.location.origin}chatForm.addEventListener("submit",e=>{e.preventDefault();const t=chatInput.value;if(!t)return;displayChatMessage(myName,t,!0);broadcastData({type:'chat',sender:myName,message:t});chatInput.value=''});function displayChatMessage(e,t,o){const i=document.createElement('div');i.className=`chat-message ${o?"self":""}`,i.innerHTML=`<div class="author">${e}</div><div class="text">${t}</div>`,chatMessages.append(i),chatMessages.scrollTop=chatMessages.scrollHeight}
-    window.addEventListener('resize', updateLayout);
+    function removeParticipant(id) {
+        delete participants[id];
+        delete peers[id];
+        delete dataConnections[id];
+        getEl(`tile-${id}`)?.remove();
+        if (pinnedUserId === id) pinnedUserId = null;
+        updateLayout();
+    }
     
-    window.addEventListener('load', setupPreJoinScreen);
+    function addVideoStream(tile, stream, isMuted = false) {
+        let video = tile.querySelector('video');
+        if (!video) { video = document.createElement('video'); tile.prepend(video); }
+        video.srcObject = stream;
+        video.muted = isMuted;
+        video.className = stream.getVideoTracks()[0]?.getSettings().cursor ? 'video-feed screen' : 'video-feed';
+        video.play().catch(e => console.error("Video play failed:", e));
+    }
+
+    function connectToNewUser(id, name, stream) {
+        const call = peer.call(id, stream, { metadata: { userName: myName } });
+        const tile = getEl(`tile-${id}`);
+        call.on('stream', userStream => addVideoStream(tile, userStream));
+        call.on('close', () => removeParticipant(id));
+        peers[id] = call;
+        const conn = peer.connect(id);
+        setupDataConnection(conn);
+    }
+    
+    function setupDataConnection(conn) {
+        conn.on('open', () => { 
+            dataConnections[conn.peer] = conn;
+            // Send my current status to the new user
+            const myState = participants[myPeerId];
+            conn.send({ type: 'user_info', userId: myPeerId, name: myName, isMuted: myState ? myState.isMuted : false });
+        });
+        conn.on('data', data => handleDataMessage(data));
+    }
+
+    function broadcastData(data) { Object.values(dataConnections).forEach(c => c?.send(data)); }
+    
+    function handleDataMessage({ type, userId, name, isMuted, sender, message }) {
+        if (type === 'user_info') updateMuteStatus(userId, isMuted);
+        if (type === 'mute_status') updateMuteStatus(userId, isMuted);
+        if (type === 'chat') displayChatMessage(sender, message);
+    }
+    
+    function updateMuteStatus(id, isMuted) {
+        if (participants[id]) {
+            participants[id].isMuted = isMuted;
+            const tile = getEl(`tile-${id}`);
+            if (tile) tile.classList.toggle('is-muted', isMuted);
+            updateParticipantListUI();
+        }
+    }
+
+    // --- Layout & UI ---
+    function createVideoTile(id, name) {
+        const tile = document.createElement('div');
+        tile.id = `tile-${id}`;
+        tile.className = 'participant-tile';
+        tile.onclick = () => pinUser(id);
+        tile.innerHTML = `<div class="user-tag"><span>${name}</span><i class="fas fa-microphone-slash mute-icon"></i></div>`;
+        return tile;
+    }
+    
+    function updateLayout() {
+        const pCount = Object.keys(participants).length;
+        videoGrid.innerHTML = '';
+        
+        if (window.innerWidth <= 768) { // Mobile view
+            const filmstrip = document.createElement('div');
+            filmstrip.className = 'filmstrip';
+            let speakerId = pinnedUserId || Object.keys(participants).find(id => participants[id].isSpeaking) || myPeerId;
+            videoGrid.append(getEl(`tile-${speakerId}`), filmstrip);
+            Object.keys(participants).filter(id => id !== speakerId).forEach(id => filmstrip.append(getEl(`tile-${id}`)));
+        } else if (currentLayout === 'speaker' && pCount > 1) { // Desktop speaker view
+            videoGrid.className = 'speaker-view';
+            const filmstrip = document.createElement('div');
+            filmstrip.className = 'filmstrip';
+            let speakerId = pinnedUserId || Object.keys(participants).find(id => participants[id].isSpeaking) || myPeerId;
+            const speakerTile = getEl(`tile-${speakerId}`);
+            speakerTile.classList.add('speaker-view-tile');
+            videoGrid.append(speakerTile, filmstrip);
+            Object.keys(participants).filter(id => id !== speakerId).forEach(id => filmstrip.append(getEl(`tile-${id}`)));
+        } else { // Gallery view
+            videoGrid.className = 'gallery-view';
+            Object.keys(participants).forEach(id => videoGrid.append(getEl(`tile-${id}`)));
+            const cols = Math.ceil(Math.sqrt(pCount));
+            const rows = Math.ceil(pCount / cols);
+            videoGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            videoGrid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+        }
+    }
+
+    function pinUser(id) {
+        if (currentLayout !== 'speaker' || isSharingScreen) return;
+        pinnedUserId = (pinnedUserId === id) ? null : id;
+        document.querySelectorAll('.participant-tile').forEach(t => t.classList.remove('is-pinned'));
+        if (pinnedUserId) getEl(`tile-${id}`).classList.add('is-pinned');
+        updateLayout();
+    }
+    
+    function setupSpeakingIndicator(tile, stream) {
+        hark(stream, { threshold: -65 }).on('speaking', () => {
+            const id = tile.id.substring(5);
+            if (participants[id]) participants[id].isSpeaking = true;
+            if(!pinnedUserId) updateLayout();
+            tile.classList.add('is-speaking');
+        });
+        hark(stream, { threshold: -65 }).on('stopped_speaking', () => {
+            tile.classList.remove('is-speaking');
+            const id = tile.id.substring(5);
+            if (participants[id]) participants[id].isSpeaking = false;
+        });
+    }
+
+    function updateFullParticipantList(serverList) {
+        const clientIds = Object.keys(participants);
+        const serverIds = serverList.map(p => p.peerId);
+        clientIds.forEach(id => { if (!serverIds.includes(id)) removeParticipant(id); });
+        serverList.forEach(p => { if (!participants[p.peerId]) addParticipant(p.peerId, p.name); });
+        
+        pList.innerHTML = '';
+        getEl('participants-btn').innerHTML = `<i class="fas fa-users"></i><span>Participants (${serverList.length})</span>`;
+        serverList.forEach(p => {
+            const li = document.createElement('li');
+            li.innerHTML = `<i class="fas fa-user"></i><span>${p.name} ${p.peerId === myPeerId ? '(You)' : ''}</span><i class="fas fa-microphone-slash mute-icon"></i>`;
+            li.querySelector('.mute-icon').style.display = p.isMuted ? 'inline' : 'none';
+            pList.append(li);
+        });
+    }
+
+    function toggleMic() {
+        const isMuted = !localStream.getAudioTracks()[0].enabled;
+        localStream.getAudioTracks()[0].enabled = !isMuted;
+        getEl('mic-btn').classList.toggle('danger', isMuted);
+        broadcastData({ type: 'mute_status', userId: myPeerId, isMuted });
+        updateMuteStatus(myPeerId, isMuted);
+    }
+    
+    function toggleCam() { const track = localStream.getVideoTracks()[0]; track.enabled = !track.enabled; getEl('cam-btn').classList.toggle('danger', !track.enabled); }
+    
+    async function toggleScreenShare(){
+        const shareBtn = getEl('share-btn');
+        if(isSharingScreen) {
+            isSharingScreen = false;
+            shareBtn.classList.remove('active');
+            screenStream.getTracks().forEach(t => t.stop());
+            replaceTrack(localStream.getVideoTracks()[0]);
+            document.querySelector('.presenter-pip')?.remove();
+            if(pinnedUserId === myPeerId) pinnedUserId = null;
+        } else {
+            try {
+                screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                isSharingScreen = true;
+                shareBtn.classList.add('active');
+                replaceTrack(screenStream.getVideoTracks()[0]);
+                pinUser(myPeerId);
+                const pip = document.createElement('div');
+                pip.className = 'presenter-pip';
+                addVideoStream(pip, localStream, myName, true);
+                getEl(`tile-${myPeerId}`).append(pip); // Add pip to my main tile
+                screenStream.getVideoTracks()[0].onended = () => toggleScreenShare();
+            } catch(e) { isSharingScreen = false; shareBtn.classList.remove('active'); }
+        }
+        updateLayout();
+    }
+    
+    function replaceTrack(newTrack) { Object.values(peers).forEach(p => p.peerConnection.getSenders().find(s => s.track.kind === 'video')?.replaceTrack(newTrack)); }
+    
+    // --- Other simple UI functions ---
+    function toggleLayout(){currentLayout=currentLayout==='gallery'?'speaker':'gallery';getEl('layout-btn').querySelector('i').className=currentLayout==='gallery'?'fas fa-grip':'fas fa-th';updateLayout()}
+    function toggleSidePanel(panel){if(panel&&sidePanel.classList.contains('open')&&getEl('panel-title').textContent.toLowerCase().includes(panel)){sidePanel.classList.remove('open');mainWrapper.classList.remove('panel-open')}else if(panel){sidePanel.classList.add('open');mainWrapper.classList.add('panel-open');getEl('panel-title').textContent=panel.charAt(0).toUpperCase()+panel.slice(1);pPanel.style.display=panel==='participants'?'block':'none';chatPanel.style.display=panel==='chat'?'flex':'none'}else{sidePanel.classList.remove('open');mainWrapper.classList.remove('panel-open')}}
+    function leaveSession(){window.location.href=window.location.origin}
+    chatForm.addEventListener('submit',e=>{e.preventDefault();const t=chatInput.value;if(!t)return;displayChatMessage(myName,t,!0);broadcastData({type:'chat',sender:myName,message:t});chatInput.value=''});
+    function displayChatMessage(e,t,o){const i=document.createElement('div');i.className=`chat-message ${o?"self":""}`,i.innerHTML=`<div class="author">${e}</div><div class="text">${t}</div>`,chatMessages.append(i),chatMessages.scrollTop=chatMessages.scrollHeight}
+    window.addEventListener('resize', updateLayout);
 </script>
 </body>
 </html>
