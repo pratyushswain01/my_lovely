@@ -10,42 +10,34 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://unpkg.com/hark@1.2.3/hark.bundle.min.js"></script>
     <style>
-        :root{--primary-start:#6a11cb;--primary-end:#2575fc;--primary-gradient:linear-gradient(135deg,var(--primary-start),var(--primary-end));--danger:#ff4d4f;--success:#2ecc71;--bg-dark:#141414;--surface-dark:#212121;--text-primary-dark:#f5f5f5;--text-secondary-dark:#aaa;--border-dark:rgba(255,255,255,.1)}*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;width:100%}body{font-family:'Inter',sans-serif;background-color:var(--bg-dark);color:var(--text-primary-dark);overflow:hidden}
-        .pre-join-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:100}
-        .pre-join-card{background:var(--surface-dark);padding:40px;border-radius:20px;max-width:450px;text-align:center;border:1px solid var(--border-dark)}.pre-join-card .icon{font-size:3rem;margin-bottom:20px;background:var(--primary-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.pre-join-card h1{margin-bottom:10px;font-size:1.8rem}.pre-join-card p{color:var(--text-secondary-dark);margin-bottom:30px}.form-group{margin-bottom:15px;text-align:left}.form-group label{display:block;margin-bottom:5px;font-size:.9rem;font-weight:500}.form-group input{width:100%;padding:12px 15px;background:var(--bg-dark);border:1px solid var(--border-dark);border-radius:8px;color:var(--text-primary-dark);font-size:1rem}#join-btn{width:100%;padding:15px;border:none;background:var(--primary-gradient);color:#fff;font-size:1.1rem;font-weight:600;border-radius:8px;cursor:pointer;margin-top:20px}
+        :root{--primary-start:#6a11cb;--primary-end:#2575fc;--primary-gradient:linear-gradient(135deg,var(--primary-start),var(--primary-end));--danger:#ff4d4f;--success:#2ecc71;--bg-dark:#101114;--surface-dark:#1c1e23;--text-primary-dark:#f5f5f5;--text-secondary-dark:#aaa;--border-dark:rgba(255,255,255,.1)}*,::before,::after{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;width:100%}body{font-family:'Inter',sans-serif;background-color:var(--bg-dark);color:var(--text-primary-dark);overflow:hidden}
+        .pre-join-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(13,15,24,.7);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s ease}.pre-join-card{background:var(--surface-dark);padding:40px;border-radius:20px;width:90%;max-width:450px;text-align:center;border:1px solid var(--border-dark)}.pre-join-card .icon{font-size:3rem;margin-bottom:20px;background:var(--primary-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.pre-join-card h1{margin-bottom:10px;font-size:1.8rem}.pre-join-card p{color:var(--text-secondary-dark);margin-bottom:30px}.form-group{margin-bottom:15px;text-align:left}.form-group label{display:block;margin-bottom:5px;font-size:.9rem;font-weight:500}.form-group input{width:100%;padding:12px 15px;background:var(--bg-dark);border:1px solid var(--border-dark);border-radius:8px;color:var(--text-primary-dark);font-size:1rem}#join-btn{width:100%;padding:15px;border:none;background:var(--primary-gradient);color:#fff;font-size:1.1rem;font-weight:600;border-radius:8px;cursor:pointer;margin-top:20px}
         #classroom-container{display:none;width:100%;height:100%;flex-direction:column;position:relative}
-        .main-content{width:100%;height:100%;display:flex;flex-direction:column;padding:20px 20px 100px 20px}
+        .main-content{width:100%;height:100%;display:flex;flex-direction:column;padding:20px 20px 100px 20px;transition:filter .3s ease}.main-content.blurred{filter:blur(5px)}
         .upschub-logo{position:absolute;top:20px;left:20px;display:flex;align-items:center;gap:10px;z-index:10}.upschub-logo i{font-size:1.5rem;color:var(--primary-end)}.upschub-logo span{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.2rem}
-        #video-grid{flex-grow:1;display:grid;gap:15px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));align-content:center}
-        .participant-tile{background:#000;border-radius:12px;position:relative;overflow:hidden;border:2px solid transparent;transition:all .3s ease;display:grid;place-items:center;cursor:pointer}.participant-tile .video-feed{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}.participant-tile .video-feed.screen{transform:scaleX(1)}.participant-tile .user-tag{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.5);padding:5px 10px;border-radius:8px;font-size:.8rem;display:flex;align-items:center;gap:8px}.participant-tile .mute-icon{color:var(--danger);display:none}
-        .is-speaking{border-color:var(--success)}
-        .control-bar{position:fixed;bottom:0;left:0;right:0;height:80px;background:rgba(33,33,33,.9);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:15px;padding:0 20px;z-index:20}
-        .control-btn{background:var(--surface-dark);border:none;color:var(--text-primary-dark);width:50px;height:50px;border-radius:15px;font-size:1.1rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background-color .2s}.control-btn span{font-size:.6rem;margin-top:4px}.control-btn:hover{background:#3d3d3d}.control-btn.danger{background:var(--danger);color:#fff}.control-btn.active{background:var(--success)}
-        .side-panel{position:fixed;top:0;right:-100%;width:350px;height:100%;background:var(--surface-dark);z-index:30;transition:right .3s ease;display:flex;flex-direction:column}.side-panel-header{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--border-dark)}.side-panel-header h3{font-size:1.2rem}.side-panel-header .close-btn{background:0 0;border:0;color:var(--text-secondary-dark);font-size:1.5rem;cursor:pointer}#participants-list{list-style:none;padding:20px;overflow-y:auto;flex-grow:1}.participant-list-item{display:flex;align-items:center;gap:10px;padding:10px}.participant-list-item .mute-icon{color:var(--danger)}
-        #chat-panel{flex-grow:1;display:flex;flex-direction:column;overflow:hidden}.chat-messages{flex-grow:1;padding:20px;overflow-y:auto}.chat-message{margin-bottom:15px}.chat-message .author{font-size:.8rem;font-weight:600;color:var(--text-secondary-dark);margin-bottom:4px}.chat-message .text{background:#3d3d3d;padding:10px 15px;border-radius:12px;display:inline-block}.chat-message.self{text-align:right}.chat-message.self .text{background:var(--primary-end)}.chat-input-form{display:flex;padding:20px;border-top:1px solid var(--border-dark)}.chat-input-form input{flex:1;background:var(--bg-dark);border:1px solid var(--border-dark);padding:10px 15px;border-radius:8px;color:var(--text-primary-dark);margin-right:10px}.chat-input-form button{background:var(--primary-end);border:none;color:#fff;font-weight:600;padding:0 15px;border-radius:8px;cursor:pointer}
-        .speaker-view #video-grid{grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(4,1fr)}.speaker-view .participant-tile.speaker{grid-column:1 / span 6;grid-row:1 / -1;cursor:default}.speaker-view .participant-tile:not(.speaker){max-height:150px;width:auto}
-        @media(max-width:768px){.main-content{padding:70px 10px 90px 10px}.upschub-logo{top:15px;left:15px}.control-bar{gap:10px}.control-btn{width:45px;height:45px;border-radius:12px;font-size:1rem}.control-btn span{display:none}#video-grid{display:flex;flex-direction:column}.participant-tile{width:100%;height:auto;flex-grow:1;max-height:none}.speaker{flex-grow:5}.participants-filmstrip{display:flex;gap:10px;overflow-x:auto;padding-top:10px;height:120px;flex-shrink:0}.participants-filmstrip .participant-tile{height:100%;width:auto;flex-grow:0;flex-shrink:0}.side-panel{width:100%;right:-100%}}
+        #video-grid{flex-grow:1;display:grid;gap:1rem;transition:all .5s ease-in-out}.participant-tile{background:#000;border-radius:12px;position:relative;overflow:hidden;border:2px solid transparent;transition:all .3s ease;display:grid;place-items:center;cursor:pointer;animation:zoomIn .3s ease forwards}.participant-tile.hidden{display:none}.participant-tile .video-feed{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}.participant-tile .video-feed.screen{transform:scaleX(1)}.participant-tile .user-tag{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.5);padding:5px 10px;border-radius:8px;font-size:.8rem;display:flex;align-items:center;gap:8px}.participant-tile .mute-icon{color:var(--danger);display:none}.is-speaking{border-color:var(--success);box-shadow:0 0 15px var(--success)}
+        @keyframes zoomIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+        .control-bar{position:fixed;bottom:0;left:0;right:0;height:80px;background:rgba(20,20,20,.8);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:15px;padding:0 20px;z-index:20;border-top:1px solid var(--border-dark)}.control-btn{background:var(--surface-dark);border:none;color:var(--text-primary-dark);width:55px;height:55px;border-radius:18px;font-size:1.2rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .2s ease}.control-btn span{font-size:.6rem;margin-top:5px}.control-btn:hover{background:#3d3d3d}.control-btn.danger{background:var(--danger);color:#fff}.control-btn.active{background:var(--success)}
+        .side-panel{position:fixed;top:0;right:-100%;width:100%;max-width:350px;height:100%;background:var(--surface-dark);z-index:30;transition:right .4s cubic-bezier(.25,.46,.45,.94);display:flex;flex-direction:column}.side-panel.open{right:0}.side-panel-header{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--border-dark)}.side-panel-header h3{font-size:1.2rem}.side-panel-header .close-btn{background:0 0;border:0;color:var(--text-secondary-dark);font-size:1.5rem;cursor:pointer}
+        #participants-list{list-style:none;padding:20px;overflow-y:auto;flex-grow:1}.participant-list-item{display:flex;align-items:center;gap:10px;padding:10px}.participant-list-item .mute-icon{color:var(--danger)}
+        #chat-panel{flex-grow:1;display:flex;flex-direction:column;overflow:hidden}.chat-messages{flex-grow:1;padding:20px;overflow-y:auto}.chat-message{margin-bottom:15px}.chat-message .author{font-size:.8rem;font-weight:600;color:var(--text-secondary-dark);margin-bottom:4px}.chat-message .text{background:#3d3d3d;padding:10px 15px;border-radius:12px;display:inline-block;max-width:100%;word-wrap:break-word}.chat-message.self{text-align:right}.chat-message.self .text{background:var(--primary-end)}
+        .chat-input-form{display:flex;padding:20px;border-top:1px solid var(--border-dark)}.chat-input-form input{flex:1;background:var(--bg-dark);border:1px solid var(--border-dark);padding:10px 15px;border-radius:8px;color:var(--text-primary-dark);margin-right:10px}.chat-input-form button{background:var(--primary-end);border:none;color:#fff;font-weight:600;padding:0 15px;border-radius:8px;cursor:pointer}
+        .speaker-view #video-grid{grid-template-areas:"speaker speaker speaker filmstrip" "speaker speaker speaker filmstrip" "speaker speaker speaker filmstrip";grid-template-columns:1fr 1fr 1fr 220px;grid-template-rows:repeat(3,1fr)}.speaker-view .participant-tile.speaker-view-tile{grid-area:speaker}.speaker-view .filmstrip{grid-area:filmstrip;display:flex;flex-direction:column;gap:1rem;overflow-y:auto}
+        .presenter-pip{position:absolute;bottom:20px;right:20px;width:180px;height:auto;aspect-ratio:16/9;border:2px solid var(--border-dark);border-radius:12px;overflow:hidden;z-index:15;box-shadow:0 5px 20px rgba(0,0,0,.5);animation:zoomIn .3s ease forwards}
+        @media(max-width:768px){.main-content{padding:70px 10px 90px}.upschub-logo{top:15px;left:15px}.control-bar{gap:10px}.control-btn{width:48px;height:48px;border-radius:15px;font-size:1.1rem}.control-btn span{display:none}#video-grid{display:flex;flex-direction:column}.participant-tile{width:100%;height:auto;flex-grow:1;max-height:none}.speaker-view-tile{flex-grow:5}.filmstrip{display:flex;gap:10px;overflow-x:auto;padding-top:10px;height:120px;flex-shrink:0}.filmstrip .participant-tile{height:100%;width:auto;flex-grow:0;flex-shrink:0}.side-panel{max-width:100%}}
     </style>
 </head>
 <body>
     <div id="pre-join-screen" class="pre-join-overlay">
-         <div class="pre-join-card">
-            <i class="fas fa-chalkboard-teacher icon"></i>
-            <h1 id="pre-join-title">Joining Classroom</h1>
-            <p id="pre-join-description">Please enter your name to join the session.</p>
-            <div class="form-group" id="room-id-form-group" style="display: none;">
-                <label for="room-input">Create a new Classroom ID</label>
-                <input type="text" id="room-input" placeholder="e.g., modern-history-class">
-            </div>
-            <div class="form-group">
-                <label for="name-input">Your Display Name</label>
-                <input type="text" id="name-input" placeholder="e.g., Pratyush Swain">
-            </div>
+        <div class="pre-join-card">
+            <i class="fas fa-chalkboard-teacher icon"></i><h1>Zenith Classroom</h1><p>Powered by UPSC Hub. Enter your details to begin.</p>
+            <div class="form-group" id="room-id-form-group" style="display: none;"><label for="room-input">Create a new Classroom ID</label><input type="text" id="room-input" placeholder="e.g., modern-history-class"></div>
+            <div class="form-group"><label for="name-input">Your Display Name</label><input type="text" id="name-input" placeholder="e.g., Pratyush Swain"></div>
             <button id="join-btn">Join Session</button>
         </div>
     </div>
     <div id="classroom-container">
-        <div class="main-content">
+        <div class="main-content" id="main-content">
             <div class="upschub-logo"><i class="fas fa-graduation-cap"></i><span>UPSChub</span></div>
             <div id="video-grid"></div>
         </div>
@@ -53,16 +45,21 @@
         <div class="side-panel" id="side-panel"><div class="side-panel-header"><h3 id="panel-title">Participants</h3><button class="close-btn" onclick="toggleSidePanel()">×</button></div><div id="participants-panel" class="panel-content-area"><ul id="participants-list"></ul></div><div id="chat-panel" class="panel-content-area" style="display: none;"><div class="chat-messages" id="chat-messages"></div><form class="chat-input-form" id="chat-form"><input type="text" id="chat-input" placeholder="Type a message..."><button type="submit"><i class="fas fa-paper-plane"></i></button></form></div></div>
     </div>
 <script>
+    // --- DOM Elements ---
     const getEl = id => document.getElementById(id);
-    const preJoinScreen = getEl('pre-join-screen'), classroom = getEl('classroom-container'), joinBtn = getEl('join-btn'), nameInput = getEl('name-input'), roomInput = getEl('room-input'), videoGrid = getEl('video-grid'), sidePanel = getEl('side-panel'), panelTitle = getEl('panel-title'), pList = getEl('participants-list'), chatPanel = getEl('chat-panel'), pPanel = getEl('participants-panel'), chatForm = getEl('chat-form'), chatInput = getEl('chat-input'), chatMessages = getEl('chat-messages');
+    const preJoinScreen = getEl('pre-join-screen'), classroom = getEl('classroom-container'), joinBtn = getEl('join-btn'), nameInput = getEl('name-input'), roomInput = getEl('room-input'), videoGrid = getEl('video-grid'), sidePanel = getEl('side-panel'), mainContent = getEl('main-content'), pList = getEl('participants-list'), chatPanel = getEl('chat-panel'), pPanel = getEl('participants-panel'), chatForm = getEl('chat-form'), chatInput = getEl('chat-input'), chatMessages = getEl('chat-messages');
+    
+    // --- State Variables ---
     let localStream, screenStream, peer, myName, myPeerId, currentLayout = 'gallery', pinnedUserId = null;
+    let isSharingScreen = false;
     const peers = {}, dataConnections = {}, participants = {};
 
+    // --- Pre-Join Logic ---
     window.addEventListener('load', () => {
         let roomID = window.location.pathname.substring(1);
         if (!roomID) {
             getEl('pre-join-title').textContent = "Create a Classroom";
-            getEl('pre-join-description').textContent = "Give your new personal classroom a name. Anyone with the link can join.";
+            getEl('pre-join-description').textContent = "Give your new personal classroom a name.";
             getEl('room-id-form-group').style.display = 'block';
         } else {
             getEl('pre-join-title').textContent = `Joining: ${roomID.replace(/-/g, ' ')}`;
@@ -77,43 +74,241 @@
         if (!window.location.pathname.substring(1)) return window.location.href = `/${roomID}`;
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            preJoinScreen.style.opacity = '0';
+            setTimeout(() => preJoinScreen.remove(), 300);
             classroom.style.display = 'flex';
-            preJoinScreen.remove();
             initialize(roomID);
         } catch (err) { alert('Failed to get camera/mic. Please check permissions.'); }
     });
 
+    // --- Core Initialization ---
     function initialize(roomID) {
-        // THIS IS THE FINAL, CORRECT CONNECTION STRING
         const socket = io("https://upschub-zenith.onrender.com");
-        
         peer = new Peer();
         peer.on('open', id => {
             myPeerId = id;
             socket.emit('join-room', roomID, id, myName);
-            const myTile = createVideoTile(id, myName);
-            addVideoStream(myTile, localStream, true);
-            setupSpeakingIndicator(myTile, localStream);
-            updateParticipant(id, myName, { isMuted: false });
+            addParticipant(id, myName, true);
         });
-        socket.on('user-connected', (id, name) => connectToNewUser(id, name, localStream));
+        socket.on('user-connected', (id, name) => { addParticipant(id, name); connectToNewUser(id, name, localStream); });
         socket.on('user-disconnected', id => removeParticipant(id));
         peer.on('call', call => {
             call.answer(localStream);
-            const tile = createVideoTile(call.peer, call.metadata.userName);
+            const tile = getEl(`tile-${call.peer}`);
             call.on('stream', userStream => addVideoStream(tile, userStream));
-            call.on('close', () => removeParticipant(call.peer));
             peers[call.peer] = call;
         });
         peer.on('connection', conn => setupDataConnection(conn));
     }
 
-    // --- ALL OTHER FUNCTIONS (connectToNewUser, addVideoStream, controls, etc.) remain exactly the same as the correct lobby version ---
-    function connectToNewUser(id,name,stream){const e=peer.call(id,stream,{metadata:{userName:myName}}),t=createVideoTile(id,name);e.on("stream",e=>addVideoStream(t,e)),e.on("close",()=>removeParticipant(id)),peers[id]=e;const o=peer.connect(id);setupDataConnection(o)}function setupDataConnection(e){e.on("open",()=>{dataConnections[e.peer]=e,e.send({type:"user_info",userId:myPeerId,userName:myName,state:participants[myPeerId].state})}),e.on("data",e=>handleDataMessage(e))}function broadcastData(e){Object.values(dataConnections).forEach(t=>t?.send(e))}function handleDataMessage({type:e,userId:t,userName:o,state:i,sender:a,message:n}){"user_info"===e&&updateParticipant(t,o,i),"mute_status"===e&&updateParticipant(t,null,i),"chat"===e&&displayChatMessage(a,n)}function createVideoTile(e,t){const o=document.createElement("div");o.className="participant-tile",o.id=`tile-${e}`,o.onclick=()=>{if("speaker"===currentLayout)pinUser(e)};const i=document.createElement("div");return i.className="user-tag",i.innerHTML=`<span>${t}</span><i class="fas fa-microphone-slash mute-icon"></i>`,o.append(i),videoGrid.append(o),o}function addVideoStream(e,t,o=!1){const i=document.createElement("video");i.srcObject=t,i.muted=o,i.className=t.getVideoTracks()[0]?.getSettings().cursor?"video-feed screen":"video-feed",i.addEventListener("loadedmetadata",()=>i.play()),e.prepend(i)}
-    function updateLayout(){if(window.innerWidth<=768){currentLayout="mobile",videoGrid.className="mobile-view";const e=document.querySelector(".speaker")||document.querySelector(`#tile-${myPeerId}`),t=document.createElement("div");t.className="participants-filmstrip",videoGrid.innerHTML="",videoGrid.append(e,t),document.querySelectorAll(".participant-tile:not(.speaker)").forEach(e=>t.append(e))}else{videoGrid.className=`${currentLayout}-view`,"speaker"===currentLayout?(()=>{const e=pinnedUserId||Object.keys(participants).find(e=>participants[e].isSpeaking)||myPeerId;document.querySelectorAll(".participant-tile").forEach(t=>{t.classList.toggle("speaker",t.id===`tile-${e}`),videoGrid.append(t)})})():document.querySelectorAll(".participant-tile").forEach(e=>{e.classList.remove("speaker"),videoGrid.append(e)})}}function pinUser(e){"speaker"===currentLayout&&(pinnedUserId=pinnedUserId===e?null:e,updateLayout())}
-    function setupSpeakingIndicator(e,t){const o=hark(t,{threshold:-65});o.on("speaking",()=>{e.classList.add("is-speaking"),participants[e.id.substring(5)]&&(participants[e.id.substring(5)].isSpeaking=!0),pinnedUserId||updateLayout()}),o.on("stopped_speaking",()=>{e.classList.remove("is-speaking"),participants[e.id.substring(5)]&&(participants[e.id.substring(5)].isSpeaking=!1)})}function updateParticipant(e,t,o){participants[e]||(participants[e]={}),t&&(participants[e].name=t),o&&(participants[e].state={...participants[e].state,...o});const i=getEl(`tile-${e}`);i&&participants[e]?.state&&(i.querySelector(".mute-icon").style.display=participants[e].state.isMuted?"block":"none"),pList.innerHTML="",Object.entries(participants).forEach(([e,t])=>{const o=document.createElement("li");o.className="participant-list-item",o.innerHTML=`<i class="fas fa-user"></i><span>${t.name||"..."} ${e===myPeerId?"(You)":""}</span><i class="fas fa-microphone-slash mute-icon"></i>`,o.querySelector(".mute-icon").style.display=t.state?.isMuted?"inline":"none",pList.append(o)}),getEl("participants-btn").innerHTML=`<i class="fas fa-users"></i><span>Participants (${Object.keys(participants).length})</span>`}function removeParticipant(e){delete participants[e],delete peers[e],delete dataConnections[e],getEl(`tile-${e}`)?.remove(),pinnedUserId===e&&(pinnedUserId=null),updateParticipant(),updateLayout()}function toggleMic(){const e=localStream.getAudioTracks()[0].enabled;localStream.getAudioTracks()[0].enabled=!e,getEl("mic-btn").classList.toggle("danger",e),broadcastData({type:"mute_status",userId:myPeerId,state:{isMuted:e}}),updateParticipant(myPeerId,null,{isMuted:e})}function toggleCam(){const e=localStream.getVideoTracks()[0];e.enabled=!e,getEl("cam-btn").classList.toggle("danger",!e.enabled)}
-    async function toggleScreenShare(){const e=getEl("share-btn");if(screenStream&&screenStream.active)screenStream.getTracks().forEach(e=>e.stop()),replaceTrack(localStream.getVideoTracks()[0]),e.classList.remove("active"),screenStream=null;else try{screenStream=await navigator.mediaDevices.getDisplayMedia({video:!0}),replaceTrack(screenStream.getVideoTracks()[0]),e.classList.add("active"),pinUser(myPeerId),screenStream.getVideoTracks()[0].onended=()=>toggleScreenShare()}catch(e){console.error("Share failed",e)}}function replaceTrack(e){Object.values(peers).forEach(t=>t.peerConnection.getSenders().find(t=>"video"===t.track.kind)?.replaceTrack(e));const t=getEl(`tile-${myPeerId}`);t&&addVideoStream(t,new MediaStream([e,localStream.getAudioTracks()[0]]),!0)}function toggleLayout(){currentLayout="gallery"===currentLayout?"speaker":"gallery",getEl("layout-btn").querySelector("i").className="gallery"===currentLayout?"fas fa-grip":"fas fa-th-large",updateLayout()}
-    function toggleSidePanel(e){if(e&&"0px"===sidePanel.style.right&&panelTitle.textContent.toLowerCase().includes(e))sidePanel.style.right="-100%";else if(e){sidePanel.style.right="0px",panelTitle.textContent=e.charAt(0).toUpperCase()+e.slice(1);const t="participants"===e;pPanel.style.display=t?"block":"none",chatPanel.style.display=t?"none":"flex"}else sidePanel.style.right="-100%"}function leaveSession(){window.location.reload()}chatForm.addEventListener("submit",e=>{e.preventDefault();const t=chatInput.value;t&&(displayChatMessage(myName,t,!0),broadcastData({type:"chat",sender:myName,message:t}),chatInput.value="")});function displayChatMessage(e,t,o=!1){const i=document.createElement("div");i.className=`chat-message ${o?"self":""}`,i.innerHTML=`<div class="author">${e}</div><div class="text">${t}</div>`,chatMessages.append(i),chatMessages.scrollTop=chatMessages.scrollHeight}window.addEventListener("resize",updateLayout);
+    // --- Participant & Stream Management ---
+    function addParticipant(id, name, isSelf = false) {
+        participants[id] = { name, isMuted: false, isSpeaking: false };
+        const tile = document.createElement('div');
+        tile.id = `tile-${id}`;
+        tile.className = 'participant-tile';
+        tile.onclick = () => pinUser(id);
+        tile.innerHTML = `<div class="user-tag"><span>${name}</span><i class="fas fa-microphone-slash mute-icon"></i></div>`;
+        videoGrid.append(tile);
+        if (isSelf) {
+            addVideoStream(tile, localStream, true);
+            setupSpeakingIndicator(tile, localStream);
+        }
+        updateParticipantList();
+        updateLayout();
+    }
+    
+    function removeParticipant(id) {
+        delete participants[id];
+        delete peers[id];
+        delete dataConnections[id];
+        getEl(`tile-${id}`)?.remove();
+        if(pinnedUserId === id) pinnedUserId = null;
+        updateParticipantList();
+        updateLayout();
+    }
+    
+    function addVideoStream(tile, stream, isMuted = false) {
+        let video = tile.querySelector('video');
+        if (!video) {
+            video = document.createElement('video');
+            tile.prepend(video);
+        }
+        video.srcObject = stream;
+        video.muted = isMuted;
+        video.className = stream.getVideoTracks()[0]?.getSettings().cursor ? 'video-feed screen' : 'video-feed';
+        video.play();
+    }
+
+    function connectToNewUser(id, name, stream) {
+        const call = peer.call(id, stream, { metadata: { userName: myName } });
+        const tile = getEl(`tile-${id}`);
+        call.on('stream', userStream => addVideoStream(tile, userStream));
+        call.on('close', () => removeParticipant(id));
+        peers[id] = call;
+        const conn = peer.connect(id);
+        setupDataConnection(conn);
+    }
+    
+    function setupDataConnection(conn) {
+        conn.on('open', () => { dataConnections[conn.peer] = conn; conn.send({type: 'user_info', userId: myPeerId, name: myName, isMuted: localStream.getAudioTracks()[0].enabled === false }); });
+        conn.on('data', data => handleDataMessage(data));
+    }
+    
+    function broadcastData(data) { Object.values(dataConnections).forEach(c => c?.send(data)); }
+    
+    function handleDataMessage({ type, userId, name, isMuted, sender, message }) {
+        if (type === 'user_info') updateParticipantState(userId, name, { isMuted });
+        if (type === 'mute_status') updateParticipantState(userId, null, { isMuted });
+        if (type === 'chat') displayChatMessage(sender, message);
+    }
+    
+    function updateParticipantState(id, name, state) {
+        if (!participants[id]) return;
+        if (name) participants[id].name = name;
+        if (state) participants[id].state = {...participants[id].state, ...state};
+        const tile = getEl(`tile-${id}`);
+        if (tile && participants[id]?.state) tile.querySelector('.mute-icon').style.display = participants[id].state.isMuted ? 'flex' : 'none';
+        updateParticipantList();
+    }
+
+    // --- Layout & UI ---
+    function updateLayout() {
+        const pCount = Object.keys(participants).length;
+        videoGrid.className = ''; // Reset
+        
+        if (window.innerWidth <= 768) { // Mobile View
+            let speakerId = pinnedUserId || Object.keys(participants).find(id => participants[id].isSpeaking) || myPeerId;
+            const speakerTile = getEl(`tile-${speakerId}`);
+            let filmstrip = videoGrid.querySelector('.participants-filmstrip');
+            if(!filmstrip) {
+                filmstrip = document.createElement('div');
+                filmstrip.className = 'participants-filmstrip';
+            }
+            videoGrid.innerHTML = '';
+            videoGrid.append(speakerTile, filmstrip);
+            Object.keys(participants).filter(id => id !== speakerId).forEach(id => filmstrip.append(getEl(`tile-${id}`)));
+            return;
+        }
+
+        if(currentLayout === 'speaker' && pCount > 1) {
+            videoGrid.classList.add('speaker-view');
+            let speakerId = pinnedUserId || Object.keys(participants).find(id => participants[id].isSpeaking) || myPeerId;
+            const speakerTile = getEl(`tile-${speakerId}`);
+            let filmstrip = videoGrid.querySelector('.filmstrip');
+            if(!filmstrip) {
+                filmstrip = document.createElement('div');
+                filmstrip.className = 'filmstrip';
+            }
+            videoGrid.innerHTML = '';
+            speakerTile.classList.add('speaker-view-tile');
+            videoGrid.append(speakerTile, filmstrip);
+            Object.keys(participants).filter(id => id !== speakerId).forEach(id => filmstrip.append(getEl(`tile-${id}`)));
+        } else { // Gallery View
+            videoGrid.classList.add('gallery-view');
+            Object.keys(participants).forEach(id => videoGrid.append(getEl(`tile-${id}`)));
+            const cols = Math.ceil(Math.sqrt(pCount));
+            const rows = Math.ceil(pCount / cols);
+            videoGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            videoGrid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+        }
+    }
+
+    function pinUser(id) {
+        if(currentLayout !== 'speaker' || id === myPeerId && isSharingScreen) return;
+        pinnedUserId = (pinnedUserId === id) ? null : id;
+        document.querySelectorAll('.participant-tile').forEach(t => t.classList.remove('is-pinned'));
+        if(pinnedUserId) getEl(`tile-${id}`).classList.add('is-pinned');
+        updateLayout();
+    }
+    
+    function setupSpeakingIndicator(tile, stream) {
+        const harker = hark(stream, { threshold: -65 });
+        harker.on('speaking', () => {
+            document.querySelectorAll('.is-speaking').forEach(el => el.classList.remove('is-speaking'));
+            tile.classList.add('is-speaking');
+            const id = tile.id.substring(5);
+            if(participants[id]) participants[id].isSpeaking = true;
+            if(!pinnedUserId) updateLayout();
+        });
+        harker.on('stopped_speaking', () => {
+            tile.classList.remove('is-speaking');
+            const id = tile.id.substring(5);
+            if(participants[id]) participants[id].isSpeaking = false;
+        });
+    }
+
+    function updateParticipantList() {
+        pList.innerHTML = '';
+        Object.entries(participants).forEach(([id, p]) => {
+            const li = document.createElement('li');
+            li.className = 'participant-list-item';
+            li.innerHTML = `<i class="fas fa-user"></i><span>${p.name || '...'} ${id === myPeerId ? '(You)' : ''}</span><i class="fas fa-microphone-slash mute-icon"></i>`;
+            li.querySelector('.mute-icon').style.display = p.state?.isMuted ? 'inline' : 'none';
+            pList.append(li);
+        });
+        getEl('participants-btn').innerHTML = `<i class="fas fa-users"></i><span>Participants (${Object.keys(participants).length})</span>`;
+    }
+
+    // --- Controls ---
+    function toggleMic() {
+        const track = localStream.getAudioTracks()[0];
+        const isMuted = !track.enabled;
+        track.enabled = !isMuted;
+        getEl('mic-btn').classList.toggle('danger', isMuted);
+        broadcastData({ type: 'mute_status', userId: myPeerId, isMuted });
+        updateParticipantState(myPeerId, null, { isMuted });
+    }
+    function toggleCam() { const track = localStream.getVideoTracks()[0]; track.enabled = !track.enabled; getEl('cam-btn').classList.toggle('danger', !track.enabled); }
+    async function toggleScreenShare(){
+        if(isSharingScreen) {
+            screenStream.getTracks().forEach(t => t.stop());
+            replaceTrack(localStream.getVideoTracks()[0]);
+            const pip = document.querySelector('.presenter-pip');
+            if(pip) pip.remove();
+            isSharingScreen = false;
+            pinnedUserId = null;
+        } else {
+            try {
+                screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                replaceTrack(screenStream.getVideoTracks()[0], true);
+                isSharingScreen = true;
+                pinUser(myPeerId);
+                const pip = document.createElement('div');
+                pip.className = 'presenter-pip';
+                addVideoStream(pip, localStream, true);
+                videoGrid.querySelector('.speaker-view-tile')?.append(pip);
+                screenStream.getVideoTracks()[0].onended = () => toggleScreenShare();
+            } catch(e) { console.error("Share failed", e); isSharingScreen = false;}
+        }
+        getEl('share-btn').classList.toggle('active', isSharingScreen);
+        updateLayout();
+    }
+    function replaceTrack(newTrack, isScreen = false) { 
+        Object.values(peers).forEach(p => p.peerConnection.getSenders().find(s => s.track.kind === 'video')?.replaceTrack(newTrack));
+        const myTile = getEl(`tile-${myPeerId}`);
+        if(myTile) addVideoStream(myTile, new MediaStream([newTrack, localStream.getAudioTracks()[0]]), true);
+    }
+    function toggleLayout() { currentLayout = (currentLayout === 'gallery') ? 'speaker' : 'gallery'; getEl('layout-btn').querySelector('i').className = (currentLayout === 'gallery') ? 'fas fa-grip' : 'fas fa-th-large'; updateLayout(); }
+    function toggleSidePanel(panel) {
+        if(panel && sidePanel.classList.contains('open') && getEl('panel-title').textContent.toLowerCase().includes(panel)) {
+            sidePanel.classList.remove('open');
+            mainContent.classList.remove('blurred');
+        } else if (panel) {
+            sidePanel.classList.add('open');
+            mainContent.classList.add('blurred');
+            getEl('panel-title').textContent = panel.charAt(0).toUpperCase() + panel.slice(1);
+            pPanel.style.display = panel === 'participants' ? 'block' : 'none';
+            chatPanel.style.display = panel === 'chat' ? 'flex' : 'none';
+        } else {
+            sidePanel.classList.remove('open');
+            mainContent.classList.remove('blurred');
+        }
+    }
+    function leaveSession(){window.location.href = window.location.origin;}
+    chatForm.addEventListener('submit', e => { e.preventDefault(); const msg = chatInput.value; if(!msg) return; displayChatMessage(myName, msg, true); broadcastData({ type: 'chat', sender: myName, message: msg }); chatInput.value = ''; });
+    function displayChatMessage(sender, msg, isSelf = false) { const el = document.createElement('div'); el.className = `chat-message ${isSelf ? 'self' : ''}`; el.innerHTML = `<div class="author">${sender}</div><div class="text">${msg}</div>`; chatMessages.append(el); chatMessages.scrollTop = chatMessages.scrollHeight; }
+    window.addEventListener('resize', updateLayout);
 </script>
 </body>
 </html>
