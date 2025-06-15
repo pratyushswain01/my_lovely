@@ -1,77 +1,78 @@
 const express = require('express');
-const path = require('path'); // Use the 'path' module for reliability
+const path = require('path');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {
-    // Add cors configuration to prevent any connection issues on Render
+    // Add cors configuration for robust deployment on services like Render
     cors: {
-        origin: "*", // Allow connections from any origin
+        origin: "*", // Allows connections from any origin
         methods: ["GET", "POST"]
     }
 });
 
 const PORT = process.env.PORT || 3000;
 
-// This tells Express to serve any static files from the same directory
+// This is our in-memory "database" to store room information.
+// Structure: { roomId: { userId: { name, isMuted } } }
+const rooms = {};
+
+// Serve static files (the HTML, etc.) from the main directory
 app.use(express.static(__dirname)); 
 
-// This is the "catch-all" route. It ensures that any request,
-// whether to the main URL or a personal room URL, gets the main application file.
+// A "catch-all" route to serve the main app for any personal room URL
 app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'VirtualClassroom.html'));
 });
 
-// This is our in-memory "database" to store room information.
-const rooms = {};
-
 // --- Main Socket.IO Connection Logic ---
 io.on('connection', socket => {
+    
+    // When a user requests to join a room
     socket.on('join-room', (roomId, userId, userName) => {
-        // --- Join the Socket.IO Room ---
+        
+        // 1. Join the Socket.IO room for efficient broadcasting
         socket.join(roomId);
         
-        // --- Create room state if it doesn't exist ---
+        // 2. Create the room in our state if it's the first user
         if (!rooms[roomId]) {
             rooms[roomId] = {};
         }
 
-        // --- Add the new user to our room state ---
+        // 3. Add the new user to our room's state object
         rooms[roomId][userId] = { name: userName, isMuted: false };
-        
-        // Get list of all participants currently in the room
-        const participantsInRoom = Object.entries(rooms[roomId]).map(([id, data]) => ({
-            peerId: id,
-            name: data.name,
-            isMuted: data.isMuted
-        }));
+        console.log(`[JOIN] ${userName} (${userId}) joined room: ${roomId}`);
 
-        // --- Announce the new user to OTHERS in the room ---
+        // 4. Announce to OTHERS in the room that a new peer has arrived
+        // This triggers them to initiate a PeerJS connection to the newcomer
         socket.to(roomId).emit('user-connected', userId, userName);
+        
+        // 5. Send the complete, updated participant list to EVERYONE in the room
+        io.in(roomId).emit('update-participant-list', Object.values(rooms[roomId]));
 
-        // --- Announce the NEW, complete participant list to EVERYONE in the room ---
-        io.in(roomId).emit('update-participant-list', participantsInRoom);
+        // Handle data relays (like mute status) from this user
+        socket.on('relay-data', (data) => {
+            // Re-broadcast the data to everyone else in the same room
+            socket.to(roomId).emit('relayed-data', data);
+        });
 
-        // --- Handle user disconnecting ---
+        // Handle user disconnection
         socket.on('disconnect', () => {
-            if (rooms[roomId] && rooms[roomId][userId]) {
-                delete rooms[roomId][userId]; // Remove user from state
+            console.log(`[LEAVE] ${userName} (${userId}) disconnected from room: ${roomId}`);
+            
+            // Remove the user from the room's state
+            if (rooms[roomId]) {
+                delete rooms[roomId][userId];
                 
-                // Announce that a user has left
+                // Announce that the peer has disconnected so clients can close connections
                 socket.to(roomId).emit('user-disconnected', userId);
-
-                // Announce the new, updated participant list
-                const updatedParticipants = Object.entries(rooms[roomId]).map(([id, data]) => ({
-                    peerId: id,
-                    name: data.name,
-                    isMuted: data.isMuted
-                }));
-                io.in(roomId).emit('update-participant-list', updatedParticipants);
+                
+                // Send the final, updated participant list to everyone remaining
+                io.in(roomId).emit('update-participant-list', Object.values(rooms[roomId]));
             }
         });
     });
 });
 
-// This line is correct for Render deployment.
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Zenith Pro Server (Personal Rooms) listening on port ${PORT}`);
+    console.log(`Zenith Pro Server (Stateful) listening on port ${PORT}`);
 });
