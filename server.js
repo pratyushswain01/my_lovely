@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const io = require('socket.io')(server);
+const io =require('socket.io')(server);
 
 const PORT = process.env.PORT || 3000;
 
@@ -21,4 +21,7 @@ io.on('connection', socket => {
     });
 });
 
-server.listen(PORT, () => console.log(`Zenith Server listening on port ${PORT}`));
+// THIS IS THE CORRECTED LINE FOR RENDER DEPLOYMENT
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Zenith Server listening on port ${PORT}`);
+});
