@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Zenith Classroom - UPSC Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/hark@1.2.3/hark.bundle.min.js"></script>
+
+    <style>
+        :root{--primary-start:#6a11cb;--primary-end:#2575fc;--primary-gradient:linear-gradient(135deg,var(--primary-start),var(--primary-end));--danger:#ff4d4f;--success:#2ecc71;--bg-dark:#141414;--surface-dark:#212121;--text-primary-dark:#f5f5f5;--text-secondary-dark:#aaa;--border-dark:rgba(255,255,255,.1)}*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;width:100%}body{font-family:'Inter',sans-serif;background-color:var(--bg-dark);color:var(--text-primary-dark);overflow:hidden}#lobby-screen{display:flex;align-items:center;justify-content:center;height:100%}.lobby-card{background:var(--surface-dark);padding:40px;border-radius:20px;max-width:450px;text-align:center;border:1px solid var(--border-dark)}.lobby-card .icon{font-size:3rem;margin-bottom:20px;background:var(--primary-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.lobby-card h1{margin-bottom:10px;font-size:1.8rem}.lobby-card p{color:var(--text-secondary-dark);margin-bottom:30px}.form-group{margin-bottom:15px;text-align:left}.form-group label{display:block;margin-bottom:5px;font-size:.9rem;font-weight:500}.form-group input{width:100%;padding:12px 15px;background:var(--bg-dark);border:1px solid var(--border-dark);border-radius:8px;color:var(--text-primary-dark);font-size:1rem}#join-btn{width:100%;padding:15px;border:none;background:var(--primary-gradient);color:#fff;font-size:1.1rem;font-weight:600;border-radius:8px;cursor:pointer;margin-top:20px}
+        #classroom-container{display:none;width:100%;height:100%;flex-direction:column;position:relative}
+        .main-content{width:100%;height:100%;display:flex;flex-direction:column;padding:20px 20px 100px 20px}
+        .upschub-logo{position:absolute;top:20px;left:20px;display:flex;align-items:center;gap:10px;z-index:10}.upschub-logo i{font-size:1.5rem;color:var(--primary-end)}.upschub-logo span{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.2rem}
+        #video-grid{flex-grow:1;display:grid;gap:15px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));align-content:center}
+        .participant-tile{background:#000;border-radius:12px;position:relative;overflow:hidden;border:2px solid transparent;transition:all .3s ease;display:grid;place-items:center;cursor:pointer}.participant-tile .video-feed{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}.participant-tile .video-feed.screen{transform:scaleX(1)}.participant-tile .user-tag{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.5);padding:5px 10px;border-radius:8px;font-size:.8rem;display:flex;align-items:center;gap:8px}.participant-tile .mute-icon{color:var(--danger);display:none}
+        .is-speaking{border-color:var(--success)}
+        .control-bar{position:fixed;bottom:0;left:0;right:0;height:80px;background:rgba(33,33,33,.9);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:15px;padding:0 20px;z-index:20}
+        .control-btn{background:var(--surface-dark);border:none;color:var(--text-primary-dark);width:50px;height:50px;border-radius:15px;font-size:1.1rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background-color .2s}.control-btn span{font-size:.6rem;margin-top:4px}.control-btn:hover{background:#3d3d3d}.control-btn.danger{background:var(--danger);color:#fff}.control-btn.active{background:var(--success)}
+        .side-panel{position:fixed;top:0;right:-100%;width:350px;height:100%;background:var(--surface-dark);z-index:30;transition:right .3s ease;display:flex;flex-direction:column}.side-panel-header{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--border-dark)}.side-panel-header h3{font-size:1.2rem}.side-panel-header .close-btn{background:0 0;border:0;color:var(--text-secondary-dark);font-size:1.5rem;cursor:pointer}#participants-list{list-style:none;padding:20px;overflow-y:auto;flex-grow:1}.participant-list-item{display:flex;align-items:center;gap:10px;padding:10px}.participant-list-item .mute-icon{color:var(--danger)}
+        #chat-panel{flex-grow:1;display:flex;flex-direction:column;overflow:hidden}.chat-messages{flex-grow:1;padding:20px;overflow-y:auto}.chat-message{margin-bottom:15px}.chat-message .author{font-size:.8rem;font-weight:600;color:var(--text-secondary-dark);margin-bottom:4px}.chat-message .text{background:#3d3d3d;padding:10px 15px;border-radius:12px;display:inline-block}.chat-message.self{text-align:right}.chat-message.self .text{background:var(--primary-end)}.chat-input-form{display:flex;padding:20px;border-top:1px solid var(--border-dark)}.chat-input-form input{flex:1;background:var(--bg-dark);border:1px solid var(--border-dark);padding:10px 15px;border-radius:8px;color:var(--text-primary-dark);margin-right:10px}.chat-input-form button{background:var(--primary-end);border:none;color:#fff;font-weight:600;padding:0 15px;border-radius:8px;cursor:pointer}
+        .speaker-view #video-grid{grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(4,1fr)}.speaker-view .participant-tile.speaker{grid-column:1 / span 6;grid-row:1 / -1;cursor:default}.speaker-view .participant-tile:not(.speaker){max-height:150px;width:auto}
+        @media(max-width:768px){.main-content{padding:70px 10px 90px 10px}.upschub-logo{top:15px;left:15px}.control-bar{gap:10px}.control-btn{width:45px;height:45px;border-radius:12px;font-size:1rem}.control-btn span{display:none}#video-grid{display:flex;flex-direction:column}.participant-tile{width:100%;height:auto;flex-grow:1;max-height:none}.speaker{flex-grow:5}.participants-filmstrip{display:flex;gap:10px;overflow-x:auto;padding-top:10px;height:120px;flex-shrink:0}.participants-filmstrip .participant-tile{height:100%;width:auto;flex-grow:0;flex-shrink:0}.side-panel{width:100%;right:-100%}}
+    </style>
+</head>
+<body>
+    <div id="lobby-screen">
+         <div class="lobby-card">
+            <i class="fas fa-chalkboard-teacher icon"></i><h1>Zenith Classroom</h1><p>Powered by UPSC Hub. Enter your details to begin.</p>
+            <div class="form-group"><label for="name-input">Your Name</label><input type="text" id="name-input"></div>
+            <div class="form-group"><label for="room-input">Classroom ID</label><input type="text" id="room-input"></div>
+            <button id="join-btn">Join Session</button>
+        </div>
+    </div>
+
+    <div id="classroom-container">
+        <div class="main-content">
+            <div class="upschub-logo"><i class="fas fa-graduation-cap"></i><span>UPSChub</span></div>
+            <div id="video-grid"></div>
+        </div>
+
+        <div class="control-bar">
+            <button class="control-btn" id="mic-btn" onclick="toggleMic()"><i class="fas fa-microphone"></i><span>Mute</span></button>
+            <button class="control-btn" id="cam-btn" onclick="toggleCam()"><i class="fas fa-video"></i><span>Video</span></button>
+            <button class="control-btn" id="share-btn" onclick="toggleScreenShare()"><i class="fas fa-desktop"></i><span>Share</span></button>
+            <button class="control-btn" id="participants-btn" onclick="toggleSidePanel('participants')"><i class="fas fa-users"></i><span>Participants</span></button>
+            <button class="control-btn" id="chat-btn" onclick="toggleSidePanel('chat')"><i class="fas fa-comment-dots"></i><span>Chat</span></button>
+            <button class="control-btn" id="layout-btn" onclick="toggleLayout()"><i class="fas fa-grip"></i><span>Layout</span></button>
+            <button class="control-btn danger" id="leave-btn" onclick="leaveSession()"> <i class="fas fa-phone-slash"></i><span>Leave</span></button>
+        </div>
+
+        <div class="side-panel" id="side-panel">
+            <div class="side-panel-header"><h3 id="panel-title">Participants</h3><button class="close-btn" onclick="toggleSidePanel()">×</button></div>
+            <div id="participants-panel" class="panel-content-area">
+                <ul id="participants-list"></ul>
+            </div>
+            <div id="chat-panel" class="panel-content-area" style="display: none;">
+                <div class="chat-messages" id="chat-messages"></div>
+                <form class="chat-input-form" id="chat-form">
+                    <input type="text" id="chat-input" placeholder="Type a message...">
+                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- DOM Elements & State ---
+    const getEl = id => document.getElementById(id);
+    const lobby = getEl('lobby-screen'), classroom = getEl('classroom-container'), joinBtn = getEl('join-btn'), nameInput = getEl('name-input'), roomInput = getEl('room-input'), videoGrid = getEl('video-grid'), sidePanel = getEl('side-panel'), panelTitle = getEl('panel-title'), pList = getEl('participants-list'), chatPanel = getEl('chat-panel'), pPanel = getEl('participants-panel'), chatForm = getEl('chat-form'), chatInput = getEl('chat-input'), chatMessages = getEl('chat-messages');
+    let localStream, screenStream, peer, myName, myPeerId, currentLayout = 'gallery', pinnedUserId = null;
+    const peers = {}, dataConnections = {}, participants = {};
+
+    // --- Initialization ---
+    joinBtn.addEventListener('click', async () => {
+        myName = nameInput.value.trim();
+        const roomID = roomInput.value.trim();
+        if (!myName || !roomID) return alert('Please enter name and room ID.');
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            classroom.style.display = 'flex';
+            lobby.remove();
+            initialize(roomID);
+        } catch (err) { alert('Failed to get camera/mic. Please check permissions.'); }
+    });
+
+    function initialize(roomID) {
+        const socket = io('/');
+        peer = new Peer();
+        peer.on('open', id => {
+            myPeerId = id;
+            socket.emit('join-room', roomID, id, myName);
+            const myTile = createVideoTile(id, myName);
+            addVideoStream(myTile, localStream, true);
+            setupSpeakingIndicator(myTile, localStream);
+            updateParticipant(id, myName, { isMuted: false });
+        });
+        socket.on('user-connected', (id, name) => connectToNewUser(id, name, localStream));
+        socket.on('user-disconnected', id => removeParticipant(id));
+        peer.on('call', call => {
+            call.answer(localStream);
+            const tile = createVideoTile(call.peer, call.metadata.userName);
+            call.on('stream', userStream => addVideoStream(tile, userStream));
+            call.on('close', () => removeParticipant(call.peer));
+            peers[call.peer] = call;
+        });
+        peer.on('connection', conn => setupDataConnection(conn));
+    }
+
+    // --- WebRTC & Data Logic ---
+    function connectToNewUser(id, name, stream) {
+        const call = peer.call(id, stream, { metadata: { userName: myName } });
+        const tile = createVideoTile(id, name);
+        call.on('stream', userStream => addVideoStream(tile, userStream));
+        call.on('close', () => removeParticipant(id));
+        peers[id] = call;
+        const conn = peer.connect(id);
+        setupDataConnection(conn);
+    }
+    
+    function setupDataConnection(conn) {
+        conn.on('open', () => { dataConnections[conn.peer] = conn; conn.send({type: 'user_info', userId: myPeerId, userName: myName, state: participants[myPeerId].state}); });
+        conn.on('data', data => handleDataMessage(data));
+    }
+    
+    function broadcastData(data) { Object.values(dataConnections).forEach(c => c?.send(data)); }
+    function handleDataMessage({ type, userId, userName, state, sender, message }) {
+        if (type === 'user_info') updateParticipant(userId, userName, state);
+        if (type === 'mute_status') updateParticipant(userId, null, state);
+        if (type === 'chat') displayChatMessage(sender, message);
+    }
+
+    // --- UI Rendering ---
+    function createVideoTile(id, name) {
+        const tile = document.createElement('div');
+        tile.className = 'participant-tile';
+        tile.id = `tile-${id}`;
+        tile.onclick = () => { if (currentLayout === 'speaker') pinUser(id); };
+        const nameTag = document.createElement('div');
+        nameTag.className = 'user-tag';
+        nameTag.innerHTML = `<span>${name}</span><i class="fas fa-microphone-slash mute-icon"></i>`;
+        tile.append(nameTag);
+        videoGrid.append(tile);
+        return tile;
+    }
+
+    function addVideoStream(tile, stream, isMuted = false) {
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.muted = isMuted;
+        video.className = stream.getVideoTracks()[0]?.getSettings().cursor ? 'video-feed screen' : 'video-feed';
+        video.addEventListener('loadedmetadata', () => video.play());
+        tile.prepend(video);
+    }
+    
+    function updateLayout() {
+        if (window.innerWidth <= 768) {
+            currentLayout = 'mobile';
+            videoGrid.className = 'mobile-view';
+            const speaker = document.querySelector('.speaker') || document.querySelector(`#tile-${myPeerId}`);
+            const filmstrip = document.createElement('div');
+            filmstrip.className = 'participants-filmstrip';
+            videoGrid.innerHTML = '';
+            videoGrid.append(speaker, filmstrip);
+            document.querySelectorAll('.participant-tile:not(.speaker)').forEach(tile => filmstrip.append(tile));
+        } else {
+            videoGrid.className = `${currentLayout}-view`;
+            if (currentLayout === 'speaker') {
+                const speakerId = pinnedUserId || Object.keys(participants).find(id => participants[id].isSpeaking) || myPeerId;
+                document.querySelectorAll('.participant-tile').forEach(tile => {
+                    tile.classList.toggle('speaker', tile.id === `tile-${speakerId}`);
+                    videoGrid.append(tile);
+                });
+            } else { // Gallery
+                document.querySelectorAll('.participant-tile').forEach(tile => {
+                    tile.classList.remove('speaker');
+                    videoGrid.append(tile);
+                });
+            }
+        }
+    }
+
+    function pinUser(id) {
+        if(currentLayout !== 'speaker') return;
+        pinnedUserId = (pinnedUserId === id) ? null : id;
+        updateLayout();
+    }
+    
+    function setupSpeakingIndicator(tile, stream) {
+        const harker = hark(stream, { threshold: -65 });
+        harker.on('speaking', () => {
+            tile.classList.add('is-speaking');
+            if(participants[tile.id.substring(5)]) participants[tile.id.substring(5)].isSpeaking = true;
+            if(!pinnedUserId) updateLayout();
+        });
+        harker.on('stopped_speaking', () => {
+            tile.classList.remove('is-speaking');
+            if(participants[tile.id.substring(5)]) participants[tile.id.substring(5)].isSpeaking = false;
+        });
+    }
+    
+    function updateParticipant(id, name, state) {
+        if (!participants[id]) participants[id] = {};
+        if (name) participants[id].name = name;
+        if (state) participants[id].state = {...participants[id].state, ...state};
+        
+        const tile = getEl(`tile-${id}`);
+        if (tile && participants[id]?.state) tile.querySelector('.mute-icon').style.display = participants[id].state.isMuted ? 'block' : 'none';
+        
+        pList.innerHTML = '';
+        Object.entries(participants).forEach(([pid, p]) => {
+            const li = document.createElement('li');
+            li.className = 'participant-list-item';
+            li.innerHTML = `<i class="fas fa-user"></i><span>${p.name || '...'} ${pid === myPeerId ? '(You)' : ''}</span><i class="fas fa-microphone-slash mute-icon"></i>`;
+            li.querySelector('.mute-icon').style.display = p.state?.isMuted ? 'inline' : 'none';
+            pList.append(li);
+        });
+        getEl('participants-btn').innerHTML = `<i class="fas fa-users"></i><span>Participants (${Object.keys(participants).length})</span>`;
+    }
+
+    function removeParticipant(id) {
+        delete participants[id];
+        delete peers[id];
+        delete dataConnections[id];
+        getEl(`tile-${id}`)?.remove();
+        if(pinnedUserId === id) pinnedUserId = null;
+        updateParticipant();
+        updateLayout();
+    }
+    
+    // --- Controls Logic ---
+    function toggleMic() {
+        const isEnabled = localStream.getAudioTracks()[0].enabled;
+        localStream.getAudioTracks()[0].enabled = !isEnabled;
+        getEl('mic-btn').classList.toggle('danger', isEnabled);
+        broadcastData({ type: 'mute_status', userId: myPeerId, state: { isMuted: isEnabled }});
+        updateParticipant(myPeerId, null, {isMuted: isEnabled});
+    }
+    
+    function toggleCam() { const track = localStream.getVideoTracks()[0]; track.enabled = !track.enabled; getEl('cam-btn').classList.toggle('danger', !track.enabled); }
+    
+    async function toggleScreenShare() {
+        const shareBtn = getEl('share-btn');
+        if (!screenStream || !screenStream.active) {
+            try {
+                screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                replaceTrack(screenStream.getVideoTracks()[0]);
+                shareBtn.classList.add('active');
+                pinUser(myPeerId);
+                screenStream.getVideoTracks()[0].onended = () => toggleScreenShare();
+            } catch(e) { console.error("Share failed", e); }
+        } else {
+            screenStream.getTracks().forEach(t => t.stop());
+            replaceTrack(localStream.getVideoTracks()[0]);
+            shareBtn.classList.remove('active');
+            screenStream = null;
+        }
+    }
+    
+    function replaceTrack(newTrack) { Object.values(peers).forEach(p => p.peerConnection.getSenders().find(s => s.track.kind === 'video')?.replaceTrack(newTrack)); const myTile = getEl(`tile-${myPeerId}`); if(myTile) addVideoStream(myTile, new MediaStream([newTrack, localStream.getAudioTracks()[0]]), true); }
+    
+    function toggleLayout() { currentLayout = (currentLayout === 'gallery') ? 'speaker' : 'gallery'; getEl('layout-btn').querySelector('i').className = (currentLayout === 'gallery') ? 'fas fa-grip' : 'fas fa-th-large'; updateLayout(); }
+    
+    function toggleSidePanel(panel) {
+        if(panel && sidePanel.style.right === '0px' && panelTitle.textContent.toLowerCase().includes(panel)) {
+            sidePanel.style.right = '-100%';
+        } else if (panel) {
+            sidePanel.style.right = '0px';
+            panelTitle.textContent = panel.charAt(0).toUpperCase() + panel.slice(1);
+            pPanel.style.display = panel === 'participants' ? 'block' : 'none';
+            chatPanel.style.display = panel === 'chat' ? 'flex' : 'none';
+        } else {
+            sidePanel.style.right = '-100%';
+        }
+    }
+    
+    // --- UI Helpers ---
+    function leaveSession() { window.location.reload(); }
+    chatForm.addEventListener('submit', e => { e.preventDefault(); const msg = chatInput.value; if(!msg) return; displayChatMessage(myName, msg, true); broadcastData({ type: 'chat', sender: myName, message: msg }); chatInput.value = ''; });
+    function displayChatMessage(sender, msg, isSelf = false) { const el = document.createElement('div'); el.className = `chat-message ${isSelf ? 'self' : ''}`; el.innerHTML = `<div class="author">${sender}</div><div class="text">${msg}</div>`; chatMessages.append(el); chatMessages.scrollTop = chatMessages.scrollHeight; }
+    window.addEventListener('resize', updateLayout);
+    
+    // Autofill for testing
+    roomInput.value = 'zenith-gs-101';
+    nameInput.value = 'Instructor ' + Math.floor(Math.random() * 100);
+</script>
+</body>
+</html>
