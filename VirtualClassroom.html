@@ -7,7 +7,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
-    <script src="https://unpkg.com/socket.io-client@4.5.4/dist/socket.io.js"></script>
+    
+    <!-- CHANGE 1: Using the official Socket.IO CDN script -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    
     <script src="https://unpkg.com/hark@1.2.3/hark.bundle.min.js"></script>
     <style>
         :root{--primary-start:#6a11cb;--primary-end:#2575fc;--primary-gradient:linear-gradient(135deg,var(--primary-start),var(--primary-end));--danger:#ff4d4f;--success:#2ecc71;--bg-dark:#141414;--surface-dark:#212121;--text-primary-dark:#f5f5f5;--text-secondary-dark:#aaa;--border-dark:rgba(255,255,255,.1)}*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;width:100%}body{font-family:'Inter',sans-serif;background-color:var(--bg-dark);color:var(--text-primary-dark);overflow:hidden}
@@ -85,9 +88,9 @@
     });
 
     function initialize(roomID) {
-        // Corrected Socket.IO connection. No need to include the script in the head anymore.
-        // It connects to the same server that served the page.
-        const socket = io();
+        // --- CHANGE 2: Using the EXPLICIT live Render URL for a robust connection ---
+        const socket = io("https://upschub-class.onrender.com");
+        
         peer = new Peer();
 
         peer.on('open', id => {
