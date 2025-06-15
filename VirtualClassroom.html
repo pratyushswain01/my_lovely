@@ -59,6 +59,7 @@
             getEl('video-preview-msg').style.display = 'none';
             joinBtn.disabled = false;
         } catch (err) { getEl('video-preview-msg').textContent = "Camera/Mic access denied."; }
+
         
         roomID = window.location.pathname.substring(1);
         if (roomID) {
