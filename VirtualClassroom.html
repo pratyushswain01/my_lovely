@@ -51,6 +51,7 @@
     let localStream, screenStream, peer, myName, myPeerId, roomID, currentLayout = 'gallery', pinnedUserId = null, isSharingScreen = false;
     const peers = {}, participants = {};
 
+    
     async function setupPreJoinScreen() {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
