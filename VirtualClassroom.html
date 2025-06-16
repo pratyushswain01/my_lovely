@@ -2,211 +2,658 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Zenith Classroom - UPSC Hub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="https://unpkg.com/hark@1.2.3/hark.bundle.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenith Classes - UPSChub</title>
     <style>
-        :root{--primary-start:#6a11cb;--primary-end:#2575fc;--primary-gradient:linear-gradient(135deg,var(--primary-start),var(--primary-end));--danger:#ff4d4f;--success:#2ecc71;--success-glow:rgba(46,204,113,0.5);--bg-dark:#101114;--surface-dark:#1c1e23;--text-primary-dark:#f5f5f5;--text-secondary-dark:#b0b3b8;--border-dark:rgba(255,255,255,.1)}*,::before,::after{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;width:100%;-webkit-font-smoothing:antialiased}body{font-family:'Inter',sans-serif;background-color:var(--bg-dark);color:var(--text-primary-dark);overflow:hidden}
-        .pre-join-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(13,15,24,.7);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s ease}.pre-join-card{background:var(--surface-dark);padding:40px;border-radius:20px;width:90%;max-width:500px;text-align:center;border:1px solid var(--border-dark)}.video-preview-container{width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;margin-bottom:20px;overflow:hidden;position:relative}#video-preview{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}#video-preview-msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-secondary-dark)}.pre-join-card h1{margin-bottom:10px;font-size:1.8rem}.form-group{margin-bottom:15px;text-align:left}.form-group label{display:block;margin-bottom:5px;font-size:.9rem;font-weight:500}.form-group input{width:100%;padding:12px 15px;background:var(--bg-dark);border:1px solid var(--border-dark);border-radius:8px;color:var(--text-primary-dark);font-size:1rem}#join-btn{width:100%;padding:15px;border:none;background:var(--primary-gradient);color:#fff;font-size:1.1rem;font-weight:600;border-radius:8px;cursor:pointer;margin-top:20px}#join-btn:disabled{background:#555;cursor:not-allowed}
-        #classroom-container{display:none;width:100%;height:100%;flex-direction:column;position:relative}
-        .main-content-wrapper{width:100%;height:100%;display:flex;transition:padding-right .4s cubic-bezier(.25,.46,.45,.94)}.main-content-wrapper.panel-open{padding-right:350px}
-        .main-content{width:100%;height:100%;display:flex;flex-direction:column;padding:20px 20px 100px;position:relative}
-        .top-bar{position:absolute;top:20px;left:20px;display:flex;align-items:center;gap:10px;z-index:10;background:rgba(28,30,35,.6);padding:8px 15px;border-radius:12px;border:1px solid var(--border-dark);backdrop-filter:blur(10px)}.top-bar i{font-size:1.5rem;color:var(--primary-end)}.top-bar span{font-family:'Poppins',sans-serif;font-weight:600;font-size:1.2rem}
-        #video-grid{flex-grow:1;display:grid;gap:1rem;transition:all .5s ease-in-out;padding-top:60px}
-        .participant-tile{background:#000;border-radius:12px;position:relative;overflow:hidden;border:2px solid transparent;transition:all .3s ease;display:grid;place-items:center;cursor:pointer;animation:zoomIn .3s ease forwards}.participant-tile .video-feed{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}.participant-tile .video-feed.screen{transform:scaleX(1)}.participant-tile .user-tag{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.5);padding:5px 10px;border-radius:8px;font-size:.8rem;display:flex;align-items:center;gap:8px}.participant-tile .mute-icon{color:var(--danger);display:none}.participant-tile.is-muted .mute-icon{display:inline-block}
-        .is-speaking{box-shadow:0 0 15px 3px var(--success-glow);border-color:var(--success)}
-        @keyframes zoomIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
-        .control-bar{position:fixed;bottom:0;left:0;right:0;height:80px;background:rgba(20,20,20,.8);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:15px;padding:0 20px;z-index:20;border-top:1px solid var(--border-dark)}.control-btn{background:var(--surface-dark);border:none;color:var(--text-primary-dark);width:auto;min-width:55px;height:55px;padding:0 15px;border-radius:18px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s ease}.control-btn span{font-size:.7rem;font-weight:500}.control-btn:hover{background:#3d3d3d}.control-btn.danger{background:var(--danger);color:#fff}.control-btn.active{background:var(--success)}
-        .side-panel{position:fixed;top:0;right:-350px;width:100%;max-width:350px;height:100%;background:var(--surface-dark);z-index:30;transition:right .4s cubic-bezier(.25,.46,.45,.94);display:flex;flex-direction:column;border-left:1px solid var(--border-dark)}.side-panel.open{right:0}.side-panel-header{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--border-dark)}.side-panel-header h3{font-size:1.2rem}.side-panel-header .close-btn{background:0 0;border:0;color:var(--text-secondary-dark);font-size:1.5rem;cursor:pointer}
-        #participants-list{list-style:none;padding:20px;overflow-y:auto;flex-grow:1}.participant-list-item{display:flex;align-items:center;gap:10px;padding:10px}.participant-list-item .mute-icon{color:var(--danger)}
-        #chat-panel{flex-grow:1;display:flex;flex-direction:column;overflow:hidden}.chat-messages{flex-grow:1;padding:20px;overflow-y:auto}.chat-message{margin-bottom:15px}.chat-message .author{font-size:.8rem;font-weight:600;color:var(--text-secondary-dark);margin-bottom:4px}.chat-message .text{background:#3d3d3d;padding:10px 15px;border-radius:12px;display:inline-block;max-width:100%;word-wrap:break-word}.chat-message.self{text-align:right}.chat-message.self .text{background:var(--primary-end)}
-        .chat-input-form{display:flex;padding:20px;border-top:1px solid var(--border-dark)}.chat-input-form input{flex:1;background:var(--bg-dark);border:1px solid var(--border-dark);padding:10px 15px;border-radius:8px;color:var(--text-primary-dark);margin-right:10px}.chat-input-form button{background:var(--primary-end);border:none;color:#fff;font-weight:600;padding:0 15px;border-radius:8px;cursor:pointer}
-        .speaker-view #video-grid{display:flex;flex-direction:row}.speaker-view .speaker-tile{flex-grow:1;min-width:0}.speaker-view .filmstrip{display:flex;flex-direction:column;gap:1rem;width:220px;height:100%;overflow-y:auto;padding-left:1rem}.speaker-view .filmstrip .participant-tile{width:100%;height:auto;flex-shrink:0}
-        .presenter-pip{position:absolute;bottom:20px;right:20px;width:200px;height:auto;aspect-ratio:16/9;border:2px solid var(--border-dark);border-radius:12px;overflow:hidden;z-index:15;box-shadow:0 5px 20px rgba(0,0,0,.5);animation:zoomIn .3s ease forwards}
-        @media(max-width:768px){.main-content-wrapper.panel-open{padding-right:0}.main-content{padding:70px 10px 90px}.top-bar{top:15px;left:15px}.control-bar{gap:10px;justify-content:space-evenly}.control-btn{min-width:48px;width:auto;height:48px;padding:0 12px;border-radius:15px}.control-btn span{display:none}
-        #video-grid{display:flex;flex-direction:column;padding-top:50px}.speaker-tile{flex-grow:1}.filmstrip{display:flex;flex-direction:row;gap:10px;overflow-x:auto;padding-top:10px;height:120px;flex-shrink:0}.filmstrip .participant-tile{height:100%;width:auto;flex-grow:0}.side-panel{max-width:100%;right:-105%}.side-panel.open{right:0}}
+        /* --- Universal Styles & Variables --- */
+        :root {
+            --bg-dark-primary: #111827; /* Darkest background */
+            --bg-dark-secondary: #1F2937; /* Lighter dark for panels */
+            --border-color: #374151;
+            --text-primary: #F9FAFB; /* White */
+            --text-secondary: #9CA3AF; /* Gray */
+            --brand-blue: #3B82F6;
+            --brand-blue-hover: #2563EB;
+            --red-leave: #DC2626;
+            --red-rec: #F87171;
+            --green-confirm: #10B981;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-dark-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* --- SVG Icon Styles --- */
+        .icon {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 1.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .icon-sm {
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* --- Lobby Screen --- */
+        #lobby {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-dark-secondary), var(--bg-dark-primary));
+        }
+
+        .lobby-box {
+            background-color: var(--bg-dark-secondary);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+            max-width: 90%;
+        }
+        .lobby-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--brand-blue);
+            margin: 0 0 10px;
+        }
+        .lobby-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        .lobby-instructor {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin: 5px 0 30px;
+        }
+        .video-preview {
+            width: 320px;
+            height: 180px;
+            background-color: var(--bg-dark-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            margin: 0 auto 20px;
+            border: 1px dashed var(--border-color);
+        }
+        .device-check {
+            color: var(--green-confirm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+        .join-button {
+            background-color: var(--brand-blue);
+            color: white;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        .join-button:hover {
+            background-color: var(--brand-blue-hover);
+        }
+
+        /* --- Main Class UI --- */
+        #class-ui {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: var(--bg-dark-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .top-left { display: flex; align-items: center; gap: 15px; }
+        .zenith-logo { font-weight: bold; color: var(--brand-blue); font-size: 1.2rem; }
+        .class-title { font-weight: 600; }
+        .top-right { display: flex; align-items: center; gap: 20px; }
+        .timer { background-color: var(--border-color); padding: 4px 8px; border-radius: 4px; font-size: 0.9em; font-variant-numeric: tabular-nums; }
+        .rec-indicator { color: var(--red-rec); font-weight: bold; display: flex; align-items: center; gap: 5px;}
+        .rec-indicator span { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* Main Content */
+        .main-area {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        .video-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 16px;
+        }
+        .main-video-feed {
+            flex: 1;
+            background-color: #000;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+        .instructor-label { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; font-size: 0.9em; }
+        .participant-thumbnails { display: flex; flex-wrap: wrap; gap: 10px; }
+        .thumbnail {
+            width: 150px;
+            height: 90px;
+            background-color: var(--bg-dark-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+        .thumbnail.is-you { border-color: var(--brand-blue); }
+
+        /* Side Panel */
+        .side-panel {
+            width: 350px;
+            background-color: var(--bg-dark-secondary);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        .side-panel-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
+        .tab-button {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: color 0.2s, background-color 0.2s;
+        }
+        .tab-button:hover { background-color: var(--border-color); color: var(--text-primary); }
+        .tab-button.active { color: var(--text-primary); border-bottom-color: var(--brand-blue); }
+        .side-panel-content { flex: 1; overflow-y: auto; }
+        .tab-content { padding: 12px; height: 100%; display: none; flex-direction: column; }
+        .tab-content.active { display: flex; }
+        
+        /* Side Panel Content: Chat */
+        .chat-messages { flex-grow: 1; overflow-y: auto; }
+        .message { margin-bottom: 12px; }
+        .message strong { display: block; font-size: 0.9em; color: var(--text-secondary); margin-bottom: 4px; }
+        .message.is-you { text-align: right; }
+        .message .bubble { 
+            display: inline-block;
+            padding: 8px 12px; 
+            border-radius: 12px; 
+            max-width: 90%;
+            text-align: left;
+        }
+        .message.is-you .bubble { background-color: var(--brand-blue); border-bottom-right-radius: 2px; }
+        .message:not(.is-you) .bubble { background-color: var(--border-color); border-bottom-left-radius: 2px; }
+
+        .input-form { display: flex; margin-top: 10px; }
+        .input-field {
+            flex: 1;
+            background: var(--bg-dark-primary);
+            border: 1px solid var(--border-color);
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+            padding: 10px;
+            color: white;
+            outline: none;
+        }
+        .input-field:focus { border-color: var(--brand-blue); }
+        .send-button {
+            background: var(--brand-blue);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        /* Side Panel Content: Q&A */
+        .qna-list { flex-grow: 1; display: flex; flex-direction: column; gap: 10px; }
+        .question-item { background: var(--border-color); padding: 10px; border-radius: 8px; display: flex; gap: 10px; align-items: flex-start; }
+        .question-upvote { display: flex; flex-direction: column; align-items: center; }
+        .upvote-button { background: none; border: 1px solid var(--text-secondary); color: var(--text-secondary); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .upvote-button:hover { background-color: #4b556350; color: white; border-color: white;}
+        .upvote-count { font-size: 0.9em; margin-top: 4px; font-weight: bold; }
+        .question-body p { margin: 0 0 5px; }
+        .question-body small { color: var(--text-secondary); }
+
+        /* Side Panel Content: Notes */
+        .notes-info { font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 10px 0; padding: 10px; background: #00000020; border-radius: 5px;}
+        .notes-textarea { flex: 1; width: 100%; background: var(--bg-dark-primary); border: 1px solid var(--border-color); color: white; border-radius: 5px; padding: 10px; resize: none; font-family: inherit; font-size: 1rem; }
+        
+        /* Side Panel Content: Resources */
+        .resources-list { display: flex; flex-direction: column; gap: 10px; }
+        .resource-link { display: flex; align-items: center; gap: 10px; background: var(--border-color); padding: 12px; border-radius: 8px; color: var(--brand-blue); text-decoration: none; transition: background-color 0.2s; }
+        .resource-link:hover { background-color: #4B5563; }
+
+        /* Bottom Control Bar */
+        .control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--bg-dark-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+        .control-group { display: flex; gap: 8px; }
+        .control-button {
+            background-color: var(--border-color);
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            width: 80px;
+            height: 60px;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .control-button:hover { background-color: #4B5563; }
+        .control-button.is-active { color: var(--brand-blue); }
+        .control-button[disabled] { color: #6B7280; background-color: #374151; cursor: not-allowed; }
+        .control-button.leave-button { background-color: var(--red-leave); }
+        .control-button.leave-button:hover { background-color: #b91c1c; }
     </style>
 </head>
 <body>
-    <div id="pre-join-screen" class="pre-join-overlay">
-         <div class="pre-join-card">
-            <div class="video-preview-container"><video id="video-preview" muted></video><p id="video-preview-msg">Requesting camera access...</p></div>
-            <h1 id="pre-join-title">Zenith Classroom</h1><p id="pre-join-description">Enter your name and the classroom ID to join.</p>
-            <div class="form-group" id="room-id-form-group" style="display: none;"><label for="room-input">Create a new Classroom ID</label><input type="text" id="room-input" placeholder="e.g., gs-polity-batch-1"></div>
-            <div class="form-group"><label for="name-input">Your Display Name</label><input type="text" id="name-input" placeholder="e.g., Pratyush Swain"></div>
-            <div class="button-group"><button id="join-btn" disabled>Join Session</button></div>
+
+    <!-- LOBBY SCREEN (Visible by default) -->
+    <div id="lobby">
+        <div class="lobby-box">
+            <h1 class="lobby-title">Zenith Classes</h1>
+            <p class="lobby-subtitle" id="lobby-class-title"></p>
+            <p class="lobby-instructor" id="lobby-instructor-name"></p>
+            
+            <div class="video-preview">
+                <svg class="icon" style="width: 48px; height: 48px; color: var(--text-secondary);" viewBox="0 0 24 24"><path d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M12 18.75h-9a2.25 2.25 0 01-2.25-2.25v-9A2.25 2.25 0 012.25 4.5h9.613a.75.75 0 01.597.28l.25.501M5.25 6.75l-1.5 3m0 0l1.5 3m-1.5-3h3.75m10.5 0v.75m-.75-.75h.75m-3 3h3"></path></svg>
+            </div>
+            
+            <div class="device-check">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 18.75a6 6 0 006-6v-1.5a6 6 0 00-12 0v1.5a6 6 0 006 6zM21 12a9 9 0 11-18 0a9 9 0 0118 0z"></path></svg>
+                <span>Microphone & Camera OK</span>
+            </div>
+            
+            <button id="join-class-btn" class="join-button">Join Class Now</button>
         </div>
     </div>
-    <div id="classroom-container">
-        <div class="main-content-wrapper" id="main-content-wrapper"><div class="main-content"><div class="top-bar"><i class="fas fa-graduation-cap"></i><span id="classroom-name-display">UPSChub</span></div><div id="video-grid"></div></div><div class="side-panel" id="side-panel"><div class="side-panel-header"><h3 id="panel-title">Participants</h3><button class="close-btn" onclick="toggleSidePanel()">×</button></div><div id="participants-panel" class="panel-content-area"><ul id="participants-list"></ul></div><div id="chat-panel" class="panel-content-area" style="display: none;"><div class="chat-messages" id="chat-messages"></div><form class="chat-input-form" id="chat-form"><input type="text" id="chat-input" placeholder="Type a message..."><button type="submit"><i class="fas fa-paper-plane"></i></button></form></div></div></div><div class="control-bar"><button class="control-btn" id="mic-btn" onclick="toggleMic()"><i class="fas fa-microphone"></i><span>Mute</span></button><button class="control-btn" id="cam-btn" onclick="toggleCam()"><i class="fas fa-video"></i><span>Video</span></button><button class="control-btn" id="share-btn" onclick="toggleScreenShare()"><i class="fas fa-desktop"></i><span>Share</span></button><button class="control-btn" id="participants-btn" onclick="toggleSidePanel('participants')"><i class="fas fa-users"></i><span>Participants</span></button><button class="control-btn" id="chat-btn" onclick="toggleSidePanel('chat')"><i class="fas fa-comment-dots"></i><span>Chat</span></button><button class="control-btn" id="layout-btn" onclick="toggleLayout()"><i class="fas fa-grip"></i><span>Layout</span></button><button class="control-btn danger" id="leave-btn" onclick="leaveSession()"> <i class="fas fa-phone-slash"></i><span>Leave</span></button></div>
+
+    <!-- MAIN CLASS UI (Hidden by default) -->
+    <div id="class-ui">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-left">
+                <span class="zenith-logo">Zenith</span>
+                <span class="class-title" id="main-class-title"></span>
+            </div>
+            <div class="top-right">
+                <span id="timer" class="timer">00:00:00</span>
+                <span class="rec-indicator"><span>🔴</span> REC</span>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-area">
+            <div class="video-container">
+                <div class="main-video-feed">
+                    <p style="font-size: 1.5rem;">Instructor Screen Share</p>
+                    <small style="color: var(--text-secondary)">(Content Area)</small>
+                    <div class="instructor-label" id="main-instructor-name"></div>
+                </div>
+                <div class="participant-thumbnails">
+                    <div class="thumbnail is-you">You</div>
+                    <div class="thumbnail">Rahul V.</div>
+                    <div class="thumbnail">Priya K.</div>
+                    <div class="thumbnail">Amit S.</div>
+                </div>
+            </div>
+            
+            <!-- Interactive Side Panel -->
+            <aside class="side-panel">
+                <div class="side-panel-tabs">
+                    <button class="tab-button active" data-tab="chat">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Chat</span>
+                    </button>
+                    <button class="tab-button" data-tab="qna">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"></path></svg>
+                        <span>Q&A</span>
+                    </button>
+                    <button class="tab-button" data-tab="notes">
+                         <svg class="icon" viewBox="0 0 24 24"><path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"></path></svg>
+                        <span>Notes</span>
+                    </button>
+                    <button class="tab-button" data-tab="resources">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m7.693-7.693l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32"></path></svg>
+                        <span>Resources</span>
+                    </button>
+                </div>
+                <div class="side-panel-content">
+                    <!-- Chat Tab -->
+                    <div id="tab-content-chat" class="tab-content active">
+                        <div class="chat-messages" id="chat-messages-container"></div>
+                        <form id="chat-form" class="input-form">
+                            <input id="chat-input" class="input-field" type="text" placeholder="Type a message..." autocomplete="off">
+                            <button type="submit" class="send-button">Send</button>
+                        </form>
+                    </div>
+                    <!-- Q&A Tab -->
+                    <div id="tab-content-qna" class="tab-content">
+                         <div class="qna-list" id="qna-list-container"></div>
+                         <form id="qna-form" class="input-form">
+                            <input id="qna-input" class="input-field" type="text" placeholder="Ask a question..." autocomplete="off">
+                            <button type="submit" class="send-button">Ask</button>
+                        </form>
+                    </div>
+                    <!-- Notes Tab -->
+                    <div id="tab-content-notes" class="tab-content">
+                        <p class="notes-info">Your private notes are saved automatically.</p>
+                        <textarea id="notes-textarea" class="notes-textarea" placeholder="Start typing your private notes here..."></textarea>
+                    </div>
+                    <!-- Resources Tab -->
+                    <div id="tab-content-resources" class="tab-content">
+                        <div class="resources-list" id="resources-list-container"></div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Bottom Control Bar -->
+        <footer class="control-bar">
+            <div class="control-group">
+                <button id="mic-btn" class="control-button is-active"></button>
+                <button id="video-btn" class="control-button is-active"></button>
+            </div>
+             <div class="control-group">
+                <button class="control-button" disabled>
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M9 17.25v1.007a3 3 0 01-.375.908l-1.5 2.25a.75.75 0 01-1.25-.608V16.5a.75.75 0 00-.75-.75h-3.375a.75.75 0 01-.75-.75V7.5a.75.75 0 01.75-.75h7.5a.75.75 0 01.75.75v3.75m0 0V6.375a2.25 2.25 0 00-2.25-2.25H4.125A2.25 2.25 0 001.875 6.375v8.25c0 1.24 1.01 2.25 2.25 2.25h3.375"></path></svg>
+                    <span>Share</span>
+                </button>
+                 <button id="hand-raise-btn" class="control-button"></button>
+            </div>
+            <div class="control-group">
+                <button id="leave-btn" class="control-button leave-button">
+                    <span>Leave</span>
+                </button>
+            </div>
+        </footer>
     </div>
 
-<script>
-    // --- THIS SCRIPT IS UPDATED FOR THE NEW STATEFUL BACKEND ---
-    const getEl = id => document.getElementById(id);
-    const preJoinScreen = getEl('pre-join-screen'), classroom = getEl('classroom-container'), joinBtn = getEl('join-btn'), nameInput = getEl('name-input'), roomInput = getEl('room-input'), videoGrid = getEl('video-grid'), sidePanel = getEl('side-panel'), mainWrapper = getEl('main-content-wrapper'), pList = getEl('participants-list'), chatPanel = getEl('chat-panel'), pPanel = getEl('participants-panel'), chatForm = getEl('chat-form'), chatInput = getEl('chat-input'), chatMessages = getEl('chat-messages');
-    let localStream, screenStream, peer, myName, myPeerId, roomID, currentLayout = 'gallery', pinnedUserId = null, isSharingScreen = false;
-    const peers = {};
 
-    async function setupPreJoinScreen() {
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            getEl('video-preview').srcObject = localStream;
-            getEl('video-preview').play();
-            getEl('video-preview-msg').style.display = 'none';
-            joinBtn.disabled = false;
-        } catch (err) { getEl('video-preview-msg').textContent = "Camera/Mic access denied."; }
-        
-        roomID = window.location.pathname.substring(1);
-        if (roomID) {
-            getEl('pre-join-title').textContent = `Joining: ${roomID.replace(/-/g, ' ')}`;
-            getEl('pre-join-description').textContent = "Your camera is on. Ready to join?";
-        } else {
-            getEl('pre-join-title').textContent = "Create or Join a Classroom";
-            getEl('room-id-form-group').style.display = 'block';
-        }
-        nameInput.value = 'Aspirant ' + Math.floor(Math.random() * 100);
-    }
-    
-    joinBtn.addEventListener('click', () => {
-        roomID = roomID || roomInput.value.trim();
-        myName = nameInput.value.trim();
-        if (!myName || !roomID) return alert('Please provide your name and a classroom ID.');
-        if (window.location.pathname.substring(1) !== roomID) return window.location.href = `/${roomID}`;
-        
-        preJoinScreen.style.opacity = '0';
-        setTimeout(() => preJoinScreen.remove(), 300);
-        classroom.style.display = 'flex';
-        initialize(roomID);
-    });
-    
-    window.addEventListener('load', setupPreJoinScreen);
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
 
-    function initialize(roomID) {
-        getEl('classroom-name-display').textContent = `UPSChub | ${roomID.replace(/-/g, ' ')}`;
-        const socket = io("https://upschub-zenith.onrender.com");
-        peer = new Peer();
-
-        peer.on('open', id => {
-            myPeerId = id;
-            socket.emit('join-room', roomID, id, myName);
-        });
-
-        // --- Listen for server events ---
-        socket.on('user-connected', (id, name) => connectToNewUser(id, name, localStream));
-        socket.on('user-disconnected', id => removeParticipant(id));
-        socket.on('update-participant-list', serverList => updateFullParticipantList(serverList));
-        socket.on('relayed-data', data => handleDataMessage(data));
-
-        peer.on('call', call => {
-            call.answer(localStream);
-            const tile = getEl(`tile-${call.peer}`) || createVideoTile(call.peer);
-            call.on('stream', userStream => addVideoStream(tile, userStream, call.metadata.userName));
-            peers[call.peer] = call;
-        });
-    }
-
-    function connectToNewUser(id, name, stream) {
-        const call = peer.call(id, stream, { metadata: { userName: myName } });
-        const tile = createVideoTile(id);
-        call.on('stream', userStream => addVideoStream(tile, userStream, name));
-        call.on('close', () => removeParticipant(id));
-        peers[id] = call;
-    }
-    
-    function updateFullParticipantList(serverList) {
-        pList.innerHTML = '';
-        getEl('participants-btn').innerHTML = `<i class="fas fa-users"></i><span>Participants (${serverList.length})</span>`;
-        
-        // Remove tiles for users who have left
-        document.querySelectorAll('.participant-tile').forEach(tile => {
-            const tileId = tile.id.substring(5);
-            if (!serverList.some(p => p.peerId === tileId)) {
-                tile.remove();
-            }
-        });
-        
-        // Add or update tiles for all participants
-        serverList.forEach(p => {
-            let tile = getEl(`tile-${p.peerId}`);
-            if (!tile) tile = createVideoTile(p.peerId);
+            // --- STATE & MOCK DATA ---
+            const classDetails = {
+                title: "Modern History - The Revolt of 1857",
+                instructor: "Dr. Ananya Sharma",
+            };
             
-            tile.querySelector('.user-tag span').textContent = p.name + (p.peerId === myPeerId ? ' (You)' : '');
-            tile.classList.toggle('is-muted', p.isMuted);
+            let state = {
+                micOn: true,
+                videoOn: true,
+                handRaised: false,
+                timerInterval: null,
+                classDuration: 0,
+            };
 
-            const li = document.createElement('li');
-            li.className = 'participant-list-item';
-            li.innerHTML = `<i class="fas fa-user"></i><span>${p.name} ${p.peerId === myPeerId ? '(You)' : ''}</span><i class="fas fa-microphone-slash mute-icon"></i>`;
-            li.querySelector('.mute-icon').style.display = p.isMuted ? 'inline' : 'none';
-            pList.append(li);
+            let data = {
+                chat: [
+                    { sender: "Instructor", text: "Welcome to Zenith Classes! We will begin shortly." },
+                    { sender: "You", text: "Hello Ma'am, audio is clear." }
+                ],
+                qna: [
+                    { id: 1, text: "Can you please explain the 'Doctrine of Lapse' again?", upvotes: 5, user: "Priya K." },
+                    { id: 2, text: "What were the immediate economic consequences of the revolt?", upvotes: 2, user: "Amit S." },
+                ],
+                resources: [
+                    { title: "Today's Presentation PDF", url: "#" },
+                    { title: "Mind Map of 1857 Revolt", url: "#" },
+                    { title: "UPSC PYQ on this topic", url: "#" },
+                ]
+            };
+
+            const ICONS = {
+                micOn: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 18.75a6 6 0 006-6v-1.5a6 6 0 00-12 0v1.5a6 6 0 006 6zM21 12a9 9 0 11-18 0a9 9 0 0118 0z"></path></svg>`,
+                micOff: `<svg class="icon" viewBox="0 0 24 24"><path d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-3L4.5 12m0 0l2.25 2.25M4.5 12l2.25-2.25m0 0l2.25-2.25M7.5 9.75l2.25-2.25M12 18.75a6 6 0 006-6v-1.5a6 6 0 00-12 0v1.5a6 6 0 006 6z"></path></svg>`,
+                videoOn: `<svg class="icon" viewBox="0 0 24 24"><path d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"></path></svg>`,
+                videoOff: `<svg class="icon" viewBox="0 0 24 24"><path d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M12 18.75h-9a2.25 2.25 0 01-2.25-2.25v-9A2.25 2.25 0 012.25 4.5h9.613a.75.75 0 01.597.28l.25.501M5.25 6.75l-1.5 3m0 0l1.5 3m-1.5-3h3.75m10.5 0v.75m-.75-.75h.75m-3 3h3"></path></svg>`,
+                hand: `<svg class="icon" viewBox="0 0 24 24"><path d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672z"></path></svg>`,
+                upvote: `<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4.5 15.75l7.5-7.5 7.5 7.5"></path></svg>`,
+                link: `<svg class="icon" viewBox="0 0 24 24"><path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"></path></svg>`
+            };
+
+            // --- DOM Elements ---
+            const lobby = document.getElementById('lobby');
+            const classUI = document.getElementById('class-ui');
+            const joinBtn = document.getElementById('join-class-btn');
+            const leaveBtn = document.getElementById('leave-btn');
+            const micBtn = document.getElementById('mic-btn');
+            const videoBtn = document.getElementById('video-btn');
+            const handRaiseBtn = document.getElementById('hand-raise-btn');
+            const timerEl = document.getElementById('timer');
+            const tabs = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // --- RENDER FUNCTIONS (Update UI based on state/data) ---
+            const renderChat = () => {
+                const container = document.getElementById('chat-messages-container');
+                container.innerHTML = '';
+                data.chat.forEach(msg => {
+                    const isYou = msg.sender === 'You';
+                    const div = document.createElement('div');
+                    div.className = `message ${isYou ? 'is-you' : ''}`;
+                    div.innerHTML = `<strong>${msg.sender}</strong><div class="bubble">${msg.text}</div>`;
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+            };
+
+            const renderQnA = () => {
+                const container = document.getElementById('qna-list-container');
+                container.innerHTML = '';
+                // Sort by upvotes descending
+                const sortedQnA = [...data.qna].sort((a, b) => b.upvotes - a.upvotes);
+                sortedQnA.forEach(q => {
+                    const div = document.createElement('div');
+                    div.className = 'question-item';
+                    div.innerHTML = `
+                        <div class="question-upvote">
+                            <button class="upvote-button" data-id="${q.id}">${ICONS.upvote}</button>
+                            <span class="upvote-count">${q.upvotes}</span>
+                        </div>
+                        <div class="question-body">
+                            <p>${q.text}</p>
+                            <small>- ${q.user}</small>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            };
+
+            const renderResources = () => {
+                const container = document.getElementById('resources-list-container');
+                container.innerHTML = '';
+                data.resources.forEach(res => {
+                    const a = document.createElement('a');
+                    a.className = 'resource-link';
+                    a.href = res.url;
+                    a.target = '_blank';
+                    a.innerHTML = `${ICONS.link}<span>${res.title}</span>`;
+                    container.appendChild(a);
+                });
+            };
+
+            const updateControlButton = (btn, iconOn, iconOff, textOn, textOff, isOn) => {
+                btn.innerHTML = `${isOn ? iconOn : iconOff}<span>${isOn ? textOn : textOff}</span>`;
+                btn.classList.toggle('is-active', isOn);
+            };
+            
+            const updateAllControls = () => {
+                updateControlButton(micBtn, ICONS.micOn, ICONS.micOff, "Mute", "Unmute", state.micOn);
+                updateControlButton(videoBtn, ICONS.videoOn, ICONS.videoOff, "Stop Video", "Start Video", state.videoOn);
+                updateControlButton(handRaiseBtn, ICONS.hand, ICONS.hand, "Lower Hand", "Raise Hand", state.handRaised);
+            };
+
+            const formatTime = (seconds) => {
+                const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+                const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+                const s = String(seconds % 60).padStart(2, '0');
+                return `${h}:${m}:${s}`;
+            };
+            
+            const startTimer = () => {
+                if (state.timerInterval) clearInterval(state.timerInterval);
+                state.timerInterval = setInterval(() => {
+                    state.classDuration++;
+                    timerEl.textContent = formatTime(state.classDuration);
+                }, 1000);
+            };
+
+            // --- EVENT LISTENERS ---
+            joinBtn.addEventListener('click', () => {
+                lobby.style.display = 'none';
+                classUI.style.display = 'flex';
+                state.classDuration = 0;
+                timerEl.textContent = formatTime(0);
+                startTimer();
+                console.log("EVENT: Joined class");
+            });
+
+            leaveBtn.addEventListener('click', () => {
+                classUI.style.display = 'none';
+                lobby.style.display = 'flex';
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+                console.log("EVENT: Left class");
+            });
+
+            micBtn.addEventListener('click', () => {
+                state.micOn = !state.micOn;
+                updateAllControls();
+                console.log(`EVENT: Mic toggled ${state.micOn ? 'ON' : 'OFF'}`);
+            });
+            
+            videoBtn.addEventListener('click', () => {
+                state.videoOn = !state.videoOn;
+                updateAllControls();
+                console.log(`EVENT: Video toggled ${state.videoOn ? 'ON' : 'OFF'}`);
+            });
+
+            handRaiseBtn.addEventListener('click', () => {
+                state.handRaised = !state.handRaised;
+                updateAllControls();
+                console.log(`EVENT: Hand ${state.handRaised ? 'RAISED' : 'LOWERED'}`);
+            });
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.dataset.tab;
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    document.getElementById(`tab-content-${targetTab}`).classList.add('active');
+                });
+            });
+
+            document.getElementById('chat-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = document.getElementById('chat-input');
+                if (input.value.trim()){
+                    data.chat.push({ sender: 'You', text: input.value.trim() });
+                    renderChat();
+                    input.value = '';
+                }
+            });
+
+            document.getElementById('qna-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = document.getElementById('qna-input');
+                if (input.value.trim()){
+                    data.qna.push({ id: Date.now(), text: input.value.trim(), upvotes: 0, user: 'You' });
+                    renderQnA();
+                    input.value = '';
+                }
+            });
+
+            document.getElementById('qna-list-container').addEventListener('click', (e) => {
+                const upvoteBtn = e.target.closest('.upvote-button');
+                if (upvoteBtn) {
+                    const questionId = parseInt(upvoteBtn.dataset.id, 10);
+                    const question = data.qna.find(q => q.id === questionId);
+                    if (question) {
+                        question.upvotes++;
+                        renderQnA();
+                    }
+                }
+            });
+            
+            // --- INITIALIZATION ---
+            function init() {
+                // Populate static details
+                document.getElementById('lobby-class-title').textContent = classDetails.title;
+                document.getElementById('lobby-instructor-name').textContent = `with ${classDetails.instructor}`;
+                document.getElementById('main-class-title').textContent = classDetails.title;
+                document.getElementById('main-instructor-name').textContent = classDetails.instructor;
+
+                // Initial render of dynamic content
+                renderChat();
+                renderQnA();
+                renderResources();
+                updateAllControls();
+
+                console.log("Zenith Classes UI Initialized.");
+            }
+            
+            init();
         });
-        updateLayout();
-    }
-    
-    function createVideoTile(id) {
-        if(getEl(`tile-${id}`)) return getEl(`tile-${id}`);
-        const tile = document.createElement('div');
-        tile.id = `tile-${id}`;
-        tile.className = 'participant-tile';
-        tile.onclick = () => pinUser(id);
-        tile.innerHTML = `<div class="user-tag"><span>Loading...</span><i class="fas fa-microphone-slash mute-icon"></i></div>`;
-        videoGrid.append(tile);
-        return tile;
-    }
+    </script>
 
-    function addVideoStream(tile, stream, isMuted = false) {
-        let video = tile.querySelector('video');
-        if (!video) { video = document.createElement('video'); tile.prepend(video); }
-        video.srcObject = stream;
-        video.muted = isMuted;
-        video.className = stream.getVideoTracks()[0]?.getSettings().cursor ? 'video-feed screen' : 'video-feed';
-        video.play().catch(e => console.error("Video play failed:", e));
-        if (tile.id !== `tile-${myPeerId}`) setupSpeakingIndicator(tile, stream);
-    }
-    
-    function removeParticipant(id) {
-        getEl(`tile-${id}`)?.remove();
-        if (peers[id]) peers[id].close();
-        delete peers[id];
-        if(pinnedUserId === id) pinnedUserId = null;
-        updateLayout();
-    }
-    
-    function toggleMic() {
-        const track = localStream.getAudioTracks()[0];
-        const isMuted = !track.enabled;
-        track.enabled = !isMuted;
-        getEl('mic-btn').classList.toggle('danger', isMuted);
-        const data = { type: 'mute_status', userId: myPeerId, isMuted };
-        broadcastData(data);
-        handleDataMessage(data); // Update my own UI immediately
-    }
-    
-    function broadcastData(data) { Object.values(peer.connections).forEach(conns => conns.forEach(c => c.send(data))); }
-    
-    function handleDataMessage({ type, userId, isMuted, sender, message }) {
-        if (type === 'mute_status' && userId !== myPeerId) {
-            const tile = getEl(`tile-${userId}`);
-            if (tile) tile.classList.toggle('is-muted', isMuted);
-        }
-        if (type === 'chat') displayChatMessage(sender, message);
-    }
-
-    // The rest of the UI/control functions are provided for completeness. They are stable.
-    function updateLayout(){const e=document.querySelectorAll(".participant-tile").length;videoGrid.innerHTML="";if(window.innerWidth<=768){let t=pinnedUserId||document.querySelector(".is-speaking")?.id.substring(5)||myPeerId;const o=getEl(`tile-${t}`),i=document.createElement("div");i.className="filmstrip",o.classList.add("speaker-tile"),videoGrid.append(o,i),document.querySelectorAll(".participant-tile").forEach(e=>{e.id!==`tile-${t}`&&i.append(e)})}else if("speaker"===currentLayout&&e>1){videoGrid.className="speaker-view";let t=pinnedUserId||document.querySelector(".is-speaking")?.id.substring(5)||myPeerId;const o=getEl(`tile-${t}`),i=document.createElement("div");i.className="filmstrip",o.classList.add("speaker-view-tile"),videoGrid.append(o,i),document.querySelectorAll(".participant-tile").forEach(e=>{e.id!==`tile-${t}`&&i.append(e)})}else{videoGrid.className="gallery-view",document.querySelectorAll(".participant-tile").forEach(e=>videoGrid.append(e));const t=Math.ceil(Math.sqrt(e)),o=Math.ceil(e/t);videoGrid.style.gridTemplateColumns=`repeat(${t}, 1fr)`,videoGrid.style.gridTemplateRows=`repeat(${o}, 1fr)`}}
-    function pinUser(e){"speaker"===currentLayout&&(pinnedUserId=pinnedUserId===e?null:e,document.querySelectorAll(".participant-tile").forEach(e=>e.classList.remove("is-pinned")),pinnedUserId&&getEl(`tile-${e}`).classList.add("is-pinned"),updateLayout())}
-    function setupSpeakingIndicator(e,t){hark(t,{threshold:-65}).on("speaking",()=>{document.querySelectorAll(".is-speaking").forEach(e=>e.classList.remove("is-speaking")),e.classList.add("is-speaking"),pinnedUserId||updateLayout()})}
-    function toggleCam(){const e=localStream.getVideoTracks()[0];e.enabled=!e.enabled,getEl("cam-btn").classList.toggle("danger",!e.enabled)}
-    async function toggleScreenShare(){const e=getEl("share-btn");if(isSharingScreen){isSharingScreen=!1,e.classList.remove("active"),screenStream.getTracks().forEach(e=>e.stop()),replaceTrack(localStream.getVideoTracks()[0]),document.querySelector(".presenter-pip")?.remove(),pinnedUserId===myPeerId&&(pinnedUserId=null)}else try{screenStream=await navigator.mediaDevices.getDisplayMedia({video:!0,audio:!0}),isSharingScreen=!0,e.classList.add("active"),replaceTrack(screenStream.getVideoTracks()[0]),pinUser(myPeerId);const t=document.createElement("div");t.className="presenter-pip",addVideoStream(t,localStream,myName,!0),getEl(`tile-${myPeerId}`).append(t),screenStream.getVideoTracks()[0].onended=()=>toggleScreenShare()}catch(e){console.error("Share failed",e),isSharingScreen=!1,e.classList.remove("active")}updateLayout()}
-    function replaceTrack(e){Object.values(peers).forEach(t=>t.peerConnection.getSenders().find(e=>"video"===e.track.kind)?.replaceTrack(e))}
-    function toggleLayout(){currentLayout=currentLayout==='gallery'?'speaker':'gallery';getEl('layout-btn').querySelector('i').className=currentLayout==='gallery'?'fas fa-grip':'fas fa-th';updateLayout()}
-    function toggleSidePanel(e){const t=getEl("side-panel"),o=getEl("main-content-wrapper");if(e&&t.classList.contains("open")&&getEl("panel-title").textContent.toLowerCase().includes(e))t.classList.remove("open"),o.classList.remove("panel-open");else if(e){t.classList.add("open"),o.classList.add("panel-open"),getEl("panel-title").textContent=e.charAt(0).toUpperCase()+e.slice(1);const i="participants"===e;pPanel.style.display=i?"block":"none",chatPanel.style.display=i?"none":"flex"}else t.classList.remove("open"),o.classList.remove("panel-open")}
-    function leaveSession(){window.location.href=window.location.origin}chatForm.addEventListener("submit",e=>{e.preventDefault();const t=chatInput.value;if(!t)return;displayChatMessage(myName,t,!0);broadcastData({type:'chat',sender:myName,message:t});chatInput.value=''});function displayChatMessage(e,t,o){const i=document.createElement('div');i.className=`chat-message ${o?"self":""}`,i.innerHTML=`<div class="author">${e}</div><div class="text">${t}</div>`,chatMessages.append(i),chatMessages.scrollTop=chatMessages.scrollHeight}
-    window.addEventListener('resize', updateLayout);
-</script>
 </body>
 </html>
