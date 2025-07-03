@@ -3,212 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To My Fiancée, My Lovely</title>
+    <title>Connection: Stable</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quicksand:wght@300..700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
 
         body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Fira Code', monospace;
             margin: 0;
             padding: 0;
-            font-family: 'Quicksand', sans-serif;
-            background: linear-gradient(135deg, #f8cdda, #fce5e6); /* A soft, celebratory peachy-pink */
-            color: #4a4a4a;
-            overflow-x: hidden;
-            overflow-y: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        #hearts-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .heart-particle {
-            position: absolute;
-            bottom: -50px;
-            font-size: 20px;
-            color: rgba(230, 73, 128, 0.3);
-            animation: floatUp 8s to 15s linear infinite;
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
+        #terminal-window {
+            width: 90%;
             max-width: 800px;
-            margin: 50px auto;
-            padding: 40px;
-            background-color: rgba(255, 255, 255, 0.96);
-            border-radius: 25px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            height: 90vh;
+            background-color: #212121;
+            border: 1px solid #444;
+            border-radius: 8px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+            overflow-y: auto; /* This enables scrolling */
+            padding: 20px;
+            box-sizing: border-box; /* Ensures padding is included in height */
+        }
+        /* Custom scrollbar for a better look */
+        #terminal-window::-webkit-scrollbar {
+            width: 8px;
+        }
+        #terminal-window::-webkit-scrollbar-track {
+            background: #212121;
+        }
+        #terminal-window::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        /* The ASCII Art at the top */
+        #ascii-art {
+            white-space: pre;
             text-align: center;
-            animation: fadeInPage 2s ease-out;
+            color: #777; /* Dimmer color to distinguish it */
+            margin-bottom: 30px;
+            font-size: 0.9em; /* Slightly smaller to fit well */
+            animation: fadeInArt 3s ease-in;
+        }
+        
+        @keyframes fadeInArt {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        h1, h2 {
-            font-family: 'Playfair Display', serif;
-            color: #b33951; /* A deeper, more mature rose color */
+        #text-container {
+            white-space: pre-wrap;
+            font-size: 1.1em;
+            line-height: 1.9;
         }
 
-        h1 {
-            font-size: 3.5em;
-            margin-bottom: 10px;
+        #text-content {
+            display: inline;
         }
 
-        h2 {
-            font-size: 2.2em;
-            margin-top: 40px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f8cdda;
+        .cursor {
             display: inline-block;
+            background-color: #ff8ac1; /* A soft, romantic magenta */
+            width: 11px;
+            height: 1.1em;
+            animation: blink 1s step-end infinite;
+            margin-left: 5px;
+            vertical-align: middle;
         }
         
-        p {
-            font-size: 1.2em;
-            line-height: 1.8;
-            text-align: left;
-        }
-        
-        .intro-p {
-            text-align: center;
-            font-style: italic;
-            font-size: 1.3em;
-            color: #6d6d6d;
+        @keyframes blink {
+            from, to { background-color: transparent; }
+            50% { background-color: #ff8ac1; }
         }
 
-        .signature {
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
-            font-size: 1.5em;
-            text-align: right;
-            margin-top: 40px;
-            color: #b33951;
+        .highlight {
+            color: #ff8ac1;
+            font-weight: 700;
         }
-
-        .pulsing-heart {
-            color: #e64980;
-            animation: beat 1.5s infinite;
-            display: inline-block;
+        .success {
+            color: #2ecc71;
         }
-        
-        ul {
-            list-style: none;
-            padding: 0;
-            text-align: left;
-            display: inline-block;
-        }
-        
-        li {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideInItem 1s forwards;
-        }
-
-        li::before {
-            content: '✨';
-            margin-right: 12px;
-            color: #f06595;
-        }
-
-        /* Staggered animation for the list items */
-        li:nth-child(1) { animation-delay: 1.0s; }
-        li:nth-child(2) { animation-delay: 1.3s; }
-        li:nth-child(3) { animation-delay: 1.6s; }
-        li:nth-child(4) { animation-delay: 1.9s; }
-        li:nth-child(5) { animation-delay: 2.2s; }
-        
-
-        /* Animations */
-        @keyframes fadeInPage {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes beat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-        }
-
-        @keyframes floatUp {
-            to {
-                transform: translateY(-105vh);
-                opacity: 0;
-            }
-        }
-        
-        @keyframes slideInItem {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
     </style>
 </head>
 <body>
 
-    <div id="hearts-container"></div>
-
-    <div class="container">
-        <h1>To My Fiancée, Lovely</h1>
-        <p class="intro-p">My heart is still racing, and my world is spinning in the most wonderful way. You said yes.</p>
-
-        <p>
-            I want to take a moment, now that the crazy, beautiful question has been answered, to tell you what this really means. Saying "yes" wasn't just an answer. It was the beginning of everything. You’ve turned the hope of a lifetime into the promise of a lifetime, and I don't think I'll ever find the words to truly thank you for that.
-        </p>
-
-        <h2>My Promise To You</h2>
-        <p>This ring on your finger isn't just a circle of metal. It's a promise. From this day forward, I promise you:</p>
-        
-        <ul>
-            <li>To be your biggest fan, your staunchest defender, and your partner in every adventure.</li>
-            <li>To make you laugh on the hard days and to hold you even closer on the easy ones.</li>
-            <li>To listen to your dreams and do everything I can to help you make them real.</li>
-            <li>To never stop trying to be the man that you deserve.</li>
-            <li>To build a life with you that is filled with more love, joy, and warmth than we can imagine.</li>
-        </ul>
-
-        <h2>The First Page of Our Next Chapter</h2>
-        <p>
-            This is it. The start of our forever. The future feels so bright and exciting, knowing I get to walk into it with you. I can't wait for all of it—the big moments and the quiet ones. The lazy Sunday mornings, the trips we'll plan, the challenges we'll overcome together, and the simple, perfect joy of just holding your hand.
-        </p>
-        <p>
-            You are my home. You are my greatest adventure. You are my everything.
-        </p>
-
-        <p class="signature">
-            Forever and Always, <br>
-            Your Fiancé <span class="pulsing-heart">❤</span>
-        </p>
+    <div id="terminal-window">
+       
+        <div id="text-container">
+            <span id="text-content"></span><span class="cursor"></span>
+        </div>
     </div>
 
-    <!-- JavaScript for the floating hearts background -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const heartsContainer = document.getElementById('hearts-container');
-            const createHeart = () => {
-                const heart = document.createElement('div');
-                heart.innerHTML = '♥';
-                heart.classList.add('heart-particle');
+        const terminalWindow = document.getElementById('terminal-window');
+        const contentElement = document.getElementById('text-content');
+        const linesToType = [
+            'Initializing new protocol...',
+            'Name: <span class="highlight">Project_Close_The_Distance.js</span>',
+            'Objective: Make miles disappear.\n',
+            '<span class="success">Status: Executing...</span>\n\n',
+            'My Lovely,',
+           
+            'That\'s now i am in your heart , inside your core of your heart',
+            'But since I can\'t be there physically, I wrote this for us.',
+            'A plan to feel close, even when we\'re far.\n',
+            'Here is our only mission:\n',
+            '    <span class="highlight">1. Sync our heartbeat.</span> Let\'s find a 10-minute meditation on YouTube and do it at the exact same time. For ten minutes, we\'ll be breathing in sync.',
+            '    <span class="highlight">2. Watch a movie together.</span> We\'ll press play on the same movie, at the same second. We can text our reactions as if we were on the same couch.',
+            '    <span class="highlight">3. Read the same book.</span> We\'ll pick a book and read one chapter a night. We can talk about it the next day. It\'s like our own private book club.',
+            '    <span class="highlight">4. A promise.</span> Let\'s each write a letter, by hand, about our dreams for our future together. We\'ll seal them and promise not to open them until the next time we\'re in the same room.\n\n',
+            'This isn\'t just a list.',
+            'It\'s a bridge I\'m building, from my screen to yours.',
+            'From my heart to yours.\n\n',
+            'I love you more than all the miles between us.\n\n',
+            'Waiting for you on the other side of this screen...\n',
+            '<span class="highlight">  ♡ </span>'
+        ];
+
+        let lineIndex = 0;
+        let charIndex = 0;
+
+        function type() {
+            // The auto-scrolling magic happens here!
+            terminalWindow.scrollTop = terminalWindow.scrollHeight;
+
+            if (lineIndex < linesToType.length) {
+                const currentLine = linesToType[lineIndex];
                 
-                heart.style.left = Math.random() * 100 + 'vw';
-                const duration = Math.random() * 7 + 8; // 8s to 15s
-                heart.style.animationDuration = `${duration}s`;
-                heart.style.fontSize = Math.random() * 10 + 10 + 'px'; // 10px to 20px
+                if (currentLine.charAt(charIndex) === '<') {
+                    const closingTagIndex = currentLine.indexOf('>', charIndex);
+                    contentElement.innerHTML += currentLine.substring(charIndex, closingTagIndex + 1);
+                    charIndex = closingTagIndex;
+                } else {
+                    contentElement.innerHTML += currentLine.charAt(charIndex);
+                }
 
-                heartsContainer.appendChild(heart);
+                charIndex++;
 
-                setTimeout(() => {
-                    heart.remove();
-                }, duration * 1000);
-            };
+                if (charIndex >= currentLine.length) {
+                    contentElement.innerHTML += '\n';
+                    charIndex = 0;
+                    lineIndex++;
+                    let pauseBetweenLines = 1500;
+                    setTimeout(type, pauseBetweenLines);
+                } else {
+                    let typingSpeed = 50;
+                    if (',.?!'.includes(currentLine.charAt(charIndex-1))) {
+                        typingSpeed = 400;
+                    }
+                    setTimeout(type, typingSpeed);
+                }
+            } else {
+                document.querySelector('.cursor').style.display = 'inline-block';
+            }
+        }
 
-            setInterval(createHeart, 300); // Create a new heart every 300ms
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for the art fade-in to finish before starting to type
+            setTimeout(type, 3000); 
         });
     </script>
 
