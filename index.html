@@ -3,305 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Question for My Lovely</title>
+    <title>To My Fiancée, My Lovely</title>
     <style>
-        /* A cute, romantic font from Google Fonts */
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Lato:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quicksand:wght@300..700&display=swap');
 
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Lato', sans-serif;
-            background: linear-gradient(135deg, #ffdde1, #ee9ca7); /* Soft pink gradient */
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #f8cdda, #fce5e6); /* A soft, celebratory peachy-pink */
+            color: #4a4a4a;
             overflow-x: hidden;
+            overflow-y: auto;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            animation: fadeIn 1.5s ease-in-out;
-        }
-
-        h1, h2 {
-            font-family: 'Dancing Script', cursive;
-            color: #d6336c; /* A deep, passionate pink */
-        }
-
-        h1 {
-            font-size: 4em;
-            margin-bottom: 0;
-        }
-
-        h2 {
-            font-size: 2.5em;
-        }
-        
-        p {
-            font-size: 1.2em;
-            line-height: 1.6;
-            color: #555;
-        }
-
-        .heart {
-            color: #e64980;
-            animation: beat 1.5s infinite;
-        }
-
-        .timeline {
-            margin-top: 40px;
-        }
-
-        .timeline-event {
-            position: relative;
-            margin: 20px 0;
-            padding: 20px;
-            background: #fff0f6;
-            border-left: 4px solid #f06595;
-            border-radius: 8px;
-            text-align: left;
-            opacity: 0;
-            transform: translateY(50px);
-            animation: slideUp 0.8s forwards;
-            animation-delay: 0.5s; /* Delay for the single event */
-        }
-
-        .timeline-event h3 {
-            font-family: 'Dancing Script', cursive;
-            color: #c2255c;
-            font-size: 2em;
-            margin-top: 0;
-        }
-        
-        .reasons-list {
-            list-style-type: none;
-            padding: 0;
-            text-align: left;
-            display: inline-block;
-            margin-top: 20px;
-        }
-
-        .reasons-list li {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            opacity: 0;
-            transform: translateX(-30px);
-            animation: slideInList 0.8s forwards;
-        }
-        
-        /* Staggered animation for the list */
-        .reasons-list li:nth-child(1) { animation-delay: 1.5s; }
-        .reasons-list li:nth-child(2) { animation-delay: 1.8s; }
-        .reasons-list li:nth-child(3) { animation-delay: 2.1s; }
-
-        .reasons-list li::before {
-            content: '💖';
-            margin-right: 10px;
-        }
-
-        #proposal-box {
-            margin-top: 50px;
-            padding: 30px;
-            background: #ffdeeb;
-            border: 2px dashed #e64980;
-            border-radius: 15px;
-            animation: glow 2s infinite alternate;
-            opacity: 0;
-            transform: scale(0.8);
-            animation: popIn 1s 3s forwards, glow 2s 4s infinite alternate;
-        }
-
-        #proposal-box h2 {
-            font-size: 3em;
-        }
-
-        .buttons {
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.5em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 0 10px;
-        }
-
-        #yes-btn {
-            background-color: #40c057; /* Bright Green */
-            color: white;
-            transform-origin: center;
-        }
-
-        #yes-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(64, 192, 87, 0.4);
-        }
-
-        #no-btn {
-            background-color: #f03e3e; /* Bright Red */
-            color: white;
-            position: relative; /* Important for JS magic */
-        }
-        
-        #celebration {
-            display: none; /* Hidden until she says yes */
-        }
-
-        #celebration h1 {
-            font-size: 5em;
-            color: #2b8a3e;
-        }
-        
-        /* Keyframe Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideInList {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes beat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-        }
-        
-        @keyframes glow {
-            from { box-shadow: 0 0 10px #e64980; }
-            to { box-shadow: 0 0 25px #ff87ab; }
-        }
-
-        /* The Confetti Canvas for celebration */
-        #confetti-canvas {
+        #hearts-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 1000;
+            z-index: 0;
         }
+
+        .heart-particle {
+            position: absolute;
+            bottom: -50px;
+            font-size: 20px;
+            color: rgba(230, 73, 128, 0.3);
+            animation: floatUp 8s to 15s linear infinite;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.96);
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            text-align: center;
+            animation: fadeInPage 2s ease-out;
+        }
+
+        h1, h2 {
+            font-family: 'Playfair Display', serif;
+            color: #b33951; /* A deeper, more mature rose color */
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 2.2em;
+            margin-top: 40px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f8cdda;
+            display: inline-block;
+        }
+        
+        p {
+            font-size: 1.2em;
+            line-height: 1.8;
+            text-align: left;
+        }
+        
+        .intro-p {
+            text-align: center;
+            font-style: italic;
+            font-size: 1.3em;
+            color: #6d6d6d;
+        }
+
+        .signature {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.5em;
+            text-align: right;
+            margin-top: 40px;
+            color: #b33951;
+        }
+
+        .pulsing-heart {
+            color: #e64980;
+            animation: beat 1.5s infinite;
+            display: inline-block;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            display: inline-block;
+        }
+        
+        li {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideInItem 1s forwards;
+        }
+
+        li::before {
+            content: '✨';
+            margin-right: 12px;
+            color: #f06595;
+        }
+
+        /* Staggered animation for the list items */
+        li:nth-child(1) { animation-delay: 1.0s; }
+        li:nth-child(2) { animation-delay: 1.3s; }
+        li:nth-child(3) { animation-delay: 1.6s; }
+        li:nth-child(4) { animation-delay: 1.9s; }
+        li:nth-child(5) { animation-delay: 2.2s; }
+        
+
+        /* Animations */
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        @keyframes floatUp {
+            to {
+                transform: translateY(-105vh);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes slideInItem {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
     </style>
 </head>
 <body>
 
-    <canvas id="confetti-canvas"></canvas>
+    <div id="hearts-container"></div>
 
-    <div class="container" id="main-content">
-        <h1>For my Lovely <span class="heart">❤</span></h1>
-        <p>I know what you must be thinking... it's only been a day. But some people wait a lifetime for a moment like the one I had when I met you. This is for the girl who changed my world in 24 hours.</p>
+    <div class="container">
+        <h1>To My Fiancée, Lovely</h1>
+        <p class="intro-p">My heart is still racing, and my world is spinning in the most wonderful way. You said yes.</p>
 
-        <div class="timeline">
-            <h2>The Day My World Changed</h2>
+        <p>
+            I want to take a moment, now that the crazy, beautiful question has been answered, to tell you what this really means. Saying "yes" wasn't just an answer. It was the beginning of everything. You’ve turned the hope of a lifetime into the promise of a lifetime, and I don't think I'll ever find the words to truly thank you for that.
+        </p>
 
-            <div class="timeline-event">
-                <h3>Yesterday... July 2nd, 2025</h3>
-                <p>The world was just normal, and then I saw you. It was like everything suddenly switched from black and white to brilliant color. When we talked, it felt like I had known you forever. Time just vanished. I went home knowing that nothing would ever be the same again.</p>
-            </div>
-        </div>
+        <h2>My Promise To You</h2>
+        <p>This ring on your finger isn't just a circle of metal. It's a promise. From this day forward, I promise you:</p>
+        
+        <ul>
+            <li>To be your biggest fan, your staunchest defender, and your partner in every adventure.</li>
+            <li>To make you laugh on the hard days and to hold you even closer on the easy ones.</li>
+            <li>To listen to your dreams and do everything I can to help you make them real.</li>
+            <li>To never stop trying to be the man that you deserve.</li>
+            <li>To build a life with you that is filled with more love, joy, and warmth than we can imagine.</li>
+        </ul>
 
-        <div class="reasons">
-            <h2>Why So Soon? Why You?</h2>
-            <ul class="reasons-list">
-                <li>Because your smile is the most beautiful thing I have ever seen.</li>
-                <li>Because talking to you feels more natural than breathing.</li>
-                <li>Because the thought of a future without you in it is already unimaginable.</li>
-            </ul>
-        </div>
+        <h2>The First Page of Our Next Chapter</h2>
+        <p>
+            This is it. The start of our forever. The future feels so bright and exciting, knowing I get to walk into it with you. I can't wait for all of it—the big moments and the quiet ones. The lazy Sunday mornings, the trips we'll plan, the challenges we'll overcome together, and the simple, perfect joy of just holding your hand.
+        </p>
+        <p>
+            You are my home. You are my greatest adventure. You are my everything.
+        </p>
 
-        <div id="proposal-box">
-            <h2>Lovely...</h2>
-            <p>I know this is the fastest love story ever written. But my heart has never, ever been more sure of anything in my entire life. So I have to ask...</p>
-            <h1>Will you marry me?</h1>
-            <div class="buttons">
-                <button id="yes-btn" class="btn">Yes!</button>
-                <button id="no-btn" class="btn">No</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="container" id="celebration">
-        <h1>SHE SAID YES! 🎉</h1>
-        <p>I am the luckiest person in the world! Our adventure starts NOW. I love you more than words can say. Let our forever begin, my darling fiancée! ❤️</p>
+        <p class="signature">
+            Forever and Always, <br>
+            Your Fiancé <span class="pulsing-heart">❤</span>
+        </p>
     </div>
 
-    <!-- JavaScript for the interactive magic! -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- JavaScript for the floating hearts background -->
     <script>
-        const noBtn = document.getElementById('no-btn');
-        const yesBtn = document.getElementById('yes-btn');
-        const proposalBox = document.getElementById('proposal-box');
-        let yesButtonSize = 1;
+        document.addEventListener('DOMContentLoaded', () => {
+            const heartsContainer = document.getElementById('hearts-container');
+            const createHeart = () => {
+                const heart = document.createElement('div');
+                heart.innerHTML = '♥';
+                heart.classList.add('heart-particle');
+                
+                heart.style.left = Math.random() * 100 + 'vw';
+                const duration = Math.random() * 7 + 8; // 8s to 15s
+                heart.style.animationDuration = `${duration}s`;
+                heart.style.fontSize = Math.random() * 10 + 10 + 'px'; // 10px to 20px
 
-        // The "No" button runs away!
-        noBtn.addEventListener('mouseover', () => {
-            const newX = Math.random() * (window.innerWidth - noBtn.clientWidth * 2);
-            const newY = Math.random() * (proposalBox.clientHeight - noBtn.clientHeight * 2);
-            
-            noBtn.style.position = 'absolute';
-            noBtn.style.left = `${newX}px`;
-            noBtn.style.top = `${newY}px`;
+                heartsContainer.appendChild(heart);
 
-            // Make the 'Yes' button bigger and more tempting
-            yesButtonSize += 0.3;
-            yesBtn.style.transform = `scale(${yesButtonSize})`;
-        });
+                setTimeout(() => {
+                    heart.remove();
+                }, duration * 1000);
+            };
 
-        // The big moment!
-        yesBtn.addEventListener('click', () => {
-            document.getElementById('main-content').style.display = 'none';
-
-            const celebration = document.getElementById('celebration');
-            celebration.style.display = 'block';
-            celebration.style.animation = 'fadeIn 2s';
-
-            // Make it rain confetti!
-            const canvas = document.getElementById('confetti-canvas');
-            const myConfetti = confetti.create(canvas, {
-                resize: true,
-                useWorker: true
-            });
-            
-            const duration = 5 * 1000;
-            const end = Date.now() + duration;
-
-            (function frame() {
-                myConfetti({
-                    particleCount: 2,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 }
-                });
-                myConfetti({
-                    particleCount: 2,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 }
-                });
-
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
-            }());
+            setInterval(createHeart, 300); // Create a new heart every 300ms
         });
     </script>
 
