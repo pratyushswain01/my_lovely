@@ -3,174 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connection: Stable</title>
+    <title>For My Lovely ❤️</title>
+    
+    <!-- Google Fonts for a romantic feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
-
+        /* --- Basic Setup --- */
         body {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-            font-family: 'Fira Code', monospace;
+            background-color: #FAF3E0; /* A soft, warm cream background */
+            font-family: 'Lato', sans-serif;
+            color: #4A4A4A; /* A soft, dark gray for text */
             margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        #terminal-window {
-            width: 90%;
-            max-width: 800px;
-            height: 90vh;
-            background-color: #212121;
-            border: 1px solid #444;
-            border-radius: 8px;
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
-            overflow-y: auto; /* This enables scrolling */
             padding: 20px;
-            box-sizing: border-box; /* Ensures padding is included in height */
-        }
-        /* Custom scrollbar for a better look */
-        #terminal-window::-webkit-scrollbar {
-            width: 8px;
-        }
-        #terminal-window::-webkit-scrollbar-track {
-            background: #212121;
-        }
-        #terminal-window::-webkit-scrollbar-thumb {
-            background: #555;
-            border-radius: 4px;
+            line-height: 1.8;
         }
 
-        /* The ASCII Art at the top */
-        #ascii-art {
-            white-space: pre;
+        /* --- The Main Content Box --- */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             text-align: center;
-            color: #777; /* Dimmer color to distinguish it */
-            margin-bottom: 30px;
-            font-size: 0.9em; /* Slightly smaller to fit well */
-            animation: fadeInArt 3s ease-in;
+        }
+
+        /* --- Typography --- */
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: #C2185B; /* A deep, romantic rose color */
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
         }
         
-        @keyframes fadeInArt {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        h2 {
+            font-size: 1.5em;
+            margin-top: 50px;
+            font-style: italic;
+            font-weight: 400;
         }
 
-        #text-container {
-            white-space: pre-wrap;
-            font-size: 1.1em;
-            line-height: 1.9;
-        }
-
-        #text-content {
-            display: inline;
-        }
-
-        .cursor {
+        h3 {
+            font-size: 2em;
+            border-bottom: 2px solid #F8BBD0; /* A pale pink underline */
             display: inline-block;
-            background-color: #ff8ac1; /* A soft, romantic magenta */
-            width: 11px;
-            height: 1.1em;
-            animation: blink 1s step-end infinite;
-            margin-left: 5px;
-            vertical-align: middle;
+            padding-bottom: 5px;
+            margin-top: 60px;
+            margin-bottom: 30px;
         }
         
-        @keyframes blink {
-            from, to { background-color: transparent; }
-            50% { background-color: #ff8ac1; }
+        p {
+            font-size: 1.1em;
         }
 
-        .highlight {
-            color: #ff8ac1;
-            font-weight: 700;
+        /* --- Special Sections --- */
+        .poem {
+            background-color: #FFF8F9; /* A very light pink background for the poem */
+            padding: 30px;
+            border-radius: 8px;
+            border-left: 4px solid #C2185B;
+            text-align: left;
+            margin: 40px auto;
+            white-space: pre-wrap; /* This keeps the poem's line breaks */
+            font-size: 1.2em;
+            font-style: italic;
+            line-height: 2;
         }
-        .success {
-            color: #2ecc71;
+
+        .reasons-list {
+            list-style-type: '💕'; /* Cute heart bullets */
+            padding-left: 30px;
+            text-align: left;
+            display: inline-block;
         }
+
+        .reasons-list li {
+            padding-left: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .gallery {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .gallery-item {
+            flex-basis: 220px;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item img:hover {
+            transform: scale(1.05);
+        }
+        
+        .gallery-item p {
+            font-size: 0.9em;
+            margin-top: 10px;
+            color: #6d6d6d;
+        }
+        
+        .final-promise {
+            font-size: 1.2em;
+            font-style: italic;
+            margin-top: 60px;
+            color: #333;
+        }
+
+        .signature {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            color: #C2185B;
+            margin-top: 40px;
+        }
+
     </style>
 </head>
 <body>
 
-    <div id="terminal-window">
-       
-        <div id="text-container">
-            <span id="text-content"></span><span class="cursor"></span>
+    <div class="container">
+        
+        <h2>A little corner of the internet, built just for you</h2>
+        <h1>For My One and Only, Lovely</h1>
+        
+        <p>
+            Hello, my love. I know I don't always have the perfect words. Sometimes I try to say how much you mean to me, and my thoughts get all tangled up. So, I built this little place for you. It’s a quiet spot where I can try to show you a tiny piece of the universe you've created in my heart.
+        </p>
+
+        <div class="poem">I named you LOVELY,
+A single word to define a work of art.
+But a name alone could never hold,
+The beautiful story I’ve seen unfold.
+
+Your laugh is like the softest chime,
+That makes me forget the track of time.
+Your smile, a sudden, gentle dawn,
+That all my worries are withdrawn from.
+
+You find the magic in simple things,
+The quiet joy that a moment brings.
+A shared glance, a hand to hold,
+A story whispered, more precious than gold.
+
+It isn't just the name you bear,
+It's in your soul, it's in the air.
+You're lovely in the way you see the world,
+In every kind and gentle word.
+
+So yes, I named you LOVELY, it's true,
+But the word’s real meaning, I found in you. ❤️ forever 
         </div>
+        
+        <h3>A Few Reasons Why You're My Everything</h3>
+        
+        <ul class="reasons-list">
+            <li>The way your eyes light up when you smile.</li>
+            <li>Your incredible kindness, which makes the world brighter.</li>
+            <li>How an ordinary day becomes an adventure with you.</li>
+            <li>The feeling of home I find whenever I'm with you.</li>
+            <li>Because you love me for exactly who I am.</li>
+        </ul>
+        
+        
+
+        <p class="final-promise">
+            This page is just a small digital symbol of a feeling that is too big for any screen. My promise to you is to spend my life trying to make you feel as happy, as safe, and as cherished as you make me feel every single day. You are my favorite person, my calm in the storm, and my greatest adventure.
+        </p>
+
+        <p class="signature">
+            With All My Love, Forever and Always
+        </p>
     </div>
-
-    <script>
-        const terminalWindow = document.getElementById('terminal-window');
-        const contentElement = document.getElementById('text-content');
-        const linesToType = [
-            'Initializing new protocol...',
-            'Name: <span class="highlight">Project_Close_The_Distance.js</span>',
-            'Objective: Make miles disappear.\n',
-            '<span class="success">Status: Executing...</span>\n\n',
-            'My Lovely,',
-           
-            'That\'s now i am in your heart , inside your core of your heart',
-            'But since I can\'t be there physically, I wrote this for us.',
-            'A plan to feel close, even when we\'re far.\n',
-            'Here is our only mission:\n',
-            '    <span class="highlight">1. Sync our heartbeat.</span> Let\'s find a 10-minute meditation on YouTube and do it at the exact same time. For ten minutes, we\'ll be breathing in sync.',
-            '    <span class="highlight">2. Watch a movie together.</span> We\'ll press play on the same movie, at the same second. We can text our reactions as if we were on the same couch.',
-            '    <span class="highlight">3. Read the same book.</span> We\'ll pick a book and read one chapter a night. We can talk about it the next day. It\'s like our own private book club.',
-            '    <span class="highlight">4. A promise.</span> Let\'s each write a letter, by hand, about our dreams for our future together. We\'ll seal them and promise not to open them until the next time we\'re in the same room.\n\n',
-            'This isn\'t just a list.',
-            'It\'s a bridge I\'m building, from my screen to yours.',
-            'From my heart to yours.\n\n',
-            'I love you more than all the miles between us.\n\n',
-            'Waiting for you on the other side of this screen...\n',
-            '<span class="highlight">  ♡ </span>'
-        ];
-
-        let lineIndex = 0;
-        let charIndex = 0;
-
-        function type() {
-            // The auto-scrolling magic happens here!
-            terminalWindow.scrollTop = terminalWindow.scrollHeight;
-
-            if (lineIndex < linesToType.length) {
-                const currentLine = linesToType[lineIndex];
-                
-                if (currentLine.charAt(charIndex) === '<') {
-                    const closingTagIndex = currentLine.indexOf('>', charIndex);
-                    contentElement.innerHTML += currentLine.substring(charIndex, closingTagIndex + 1);
-                    charIndex = closingTagIndex;
-                } else {
-                    contentElement.innerHTML += currentLine.charAt(charIndex);
-                }
-
-                charIndex++;
-
-                if (charIndex >= currentLine.length) {
-                    contentElement.innerHTML += '\n';
-                    charIndex = 0;
-                    lineIndex++;
-                    let pauseBetweenLines = 1500;
-                    setTimeout(type, pauseBetweenLines);
-                } else {
-                    let typingSpeed = 50;
-                    if (',.?!'.includes(currentLine.charAt(charIndex-1))) {
-                        typingSpeed = 400;
-                    }
-                    setTimeout(type, typingSpeed);
-                }
-            } else {
-                document.querySelector('.cursor').style.display = 'inline-block';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Wait for the art fade-in to finish before starting to type
-            setTimeout(type, 3000); 
-        });
-    </script>
 
 </body>
 </html>
