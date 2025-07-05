@@ -3,195 +3,427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For My Lovely ❤️</title>
-    
-    <!-- Google Fonts for a romantic feel -->
+    <title>A Magical Message For You</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Lato:wght@300;400&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Quintessential&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <style>
-        /* --- Basic Setup --- */
-        body {
-            background-color: #FAF3E0; /* A soft, warm cream background */
-            font-family: 'Lato', sans-serif;
-            color: #4A4A4A; /* A soft, dark gray for text */
+        :root {
+            --bg-grad-start: #0f0c29;
+            --bg-grad-mid: #302b63;
+            --bg-grad-end: #24243e;
+            --paper-bg: rgba(255, 250, 240, 0.95); /* Floral white, slightly transparent */
+            --text-color: #3a322d;
+            --gold-accent: #f7d794;
+            --seal-color: #e57373; /* A soft, warm red for the seal */
+            --font-cursive: 'Dancing Script', cursive;
+            --font-elegant: 'Quintessential', cursive;
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
-            line-height: 1.8;
-            -webkit-font-smoothing: antialiased; /* Smoother fonts on some browsers */
-            -moz-osx-font-smoothing: grayscale;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        /* --- The Main Content Box --- */
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            background-color: #ffffff;
-            padding: 50px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: radial-gradient(ellipse at bottom, var(--bg-grad-start) 0%, var(--bg-grad-mid) 50%, var(--bg-grad-end) 100%);
+            font-family: var(--font-elegant), sans-serif;
+            overflow: hidden;
+            perspective: 1000px;
+            cursor: none; /* Hide default cursor */
+        }
+
+        /* --- Magical Particle Canvas --- */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* --- Magical Cursor --- */
+        .cursor-trail {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--gold-accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            animation: fadeOut 0.5s forwards;
+            box-shadow: 0 0 10px var(--gold-accent), 0 0 20px var(--gold-accent);
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            to { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+        }
+
+        /* --- Envelope Section --- */
+        #reveal-container {
+            position: relative;
+            z-index: 10;
             text-align: center;
+            color: #fff;
+            animation: fadeIn 2s ease-in-out;
         }
 
-        /* --- Typography --- */
-        h1, h2, h3 {
-            font-family: 'Playfair Display', serif;
-            color: #C2185B; /* A deep, romantic rose color */
-        }
-
-        h1 {
-            font-size: 3.5em;
-            margin-bottom: 10px;
-        }
-        
-        h2 {
-            font-size: 1.5em;
-            margin-top: 50px;
-            font-style: italic;
-            font-weight: 400;
-        }
-
-        h3 {
-            font-size: 2em;
-            border-bottom: 2px solid #F8BBD0; /* A pale pink underline */
-            display: inline-block;
-            padding-bottom: 5px;
-            margin-top: 60px;
+        #reveal-container h1 {
+            font-family: var(--font-cursive);
+            font-size: 3rem;
             margin-bottom: 30px;
+            text-shadow: 0 0 15px rgba(247, 215, 148, 0.7);
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+
+        .envelope-wrapper:hover {
+            transform: translateY(-10px) scale(1.05);
         }
         
-        p {
-            font-size: 1.1em;
+        .envelope-wrapper.opened .envelope-flap {
+            transform: rotateX(180deg);
+            transition: transform 0.7s 0.3s ease-out;
+            z-index: 5;
         }
 
-        /* --- Special Sections --- */
-        .poem {
-            background-color: #FFF8F9; /* A very light pink background for the poem */
-            padding: 30px;
-            border-radius: 8px;
-            border-left: 4px solid #C2185B;
-            text-align: left;
-            margin: 40px auto;
-            white-space: pre-wrap; /* This keeps the poem's line breaks */
-            font-size: 1.2em;
-            font-style: italic;
-            line-height: 2;
+        .envelope-wrapper.opened .letter {
+            transform: translateY(-120px);
+            transition: transform 0.7s 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
 
-        .reasons-list {
-            list-style-type: '💕'; /* Cute heart bullets */
-            padding-left: 30px;
-            text-align: left;
-            display: inline-block;
-        }
-
-        .reasons-list li {
-            padding-left: 15px;
-            margin-bottom: 15px;
+        .envelope-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #a7bed3;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         
-        .final-promise {
-            font-size: 1.2em;
-            font-style: italic;
-            margin-top: 60px;
-            color: #333;
+        .letter {
+            position: absolute;
+            bottom: 0;
+            left: 5%;
+            width: 90%;
+            height: 95%;
+            background: var(--paper-bg);
+            border-radius: 5px 5px 0 0;
+            z-index: 6;
+            transition: transform 0.5s ease-out;
+        }
+        
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: #a7bed3;
+            transform-origin: top;
+            border-radius: 5px 5px 0 0;
+            border-bottom: 2px solid #94aebd;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            z-index: 20;
+            transition: transform 0.5s ease;
         }
 
-        .signature {
-            font-family: 'Playfair Display', serif;
-            font-size: 2em;
-            color: #C2185B;
-            margin-top: 40px;
+        .seal {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: var(--seal-color);
+            border-radius: 50%;
+            z-index: 21;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4), inset 0 -2px 2px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgba(0,0,0,0.3);
+        }
+        .seal .fa-heart {
+            font-size: 20px;
+        }
+        
+        /* --- The Actual Letter Paper --- */
+        #letter-container {
+            display: none; /* Initially hidden */
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 700px;
+            animation: fadeInLetter 1s ease-out forwards;
         }
 
-        /* --- MOBILE OPTIMIZATION (THE MAGIC PART!) --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInLetter {
+            from { opacity: 0; transform: scale(0.9) rotate(-3deg); }
+            to { opacity: 1; transform: scale(1) rotate(0); }
+        }
+
+        .letter-paper {
+            background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAEsBHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fAQsLCwsLDgsLCw4NDgsNDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDv/AABEIAKAAoAMBIgACEQEDEQH/xABgAAEAAwEAAAAAAAAAAAAAAAAAAgQFAwEBAAAAAAAAAAAAAAAAAAAAAVABAQEAAAAAAAAAAAAAAAAAAHwBEQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/ANj+EBAAAAAAAAAMgACIgABIIAgkBAQAAAAAAAAAAIDIKSIgIggCCQEBKWAAAAAIAAAAAIDIKSIggIBAQCSkBAZgYBAAAAAABAZBUSIkIIEAkpAQKAgMAAAAACAAACAyCkiSCUQAgJAYEAwAAACgQAAACAqCIqJEFQBAZBAaAgAAAAKBABAQEVEVBVIkoCEkBoCAAAAUCgSAgKiJVIlViUECRgGgIAAKBQIBAVEVYkCVCRkCRgGgAAACgQCASsSJAgZAYBA0AAAAAAUAgErEkZAgZAaAaAAAAAAAAKAQCViYkCBgGgGgAAAAAAAAAAUCKlZIgYAAAAAAAAAAAAVKkZAAAAAAAAAAAAAAAAAqVkAAAAAAAAAAAAAAAAAA//Z');
+            background-color: var(--paper-bg);
+            background-size: cover;
+            background-blend-mode: overlay;
+            padding: 50px 60px;
+            border-radius: 5px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            transform: rotate(-1.5deg);
+        }
+
+        .letter-body p {
+            font-family: var(--font-cursive);
+            font-size: 2rem;
+            line-height: 1.8;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            text-indent: 2em;
+        }
+        
+        .letter-closing {
+            margin-top: 50px;
+            text-align: right;
+        }
+
+        .closing, .signature-name {
+            font-family: var(--font-cursive);
+            font-size: 2.2rem;
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        .signature-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        /* --- Music Control --- */
+        #music-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: none; /* Hidden until letter is shown */
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        #music-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        #music-toggle.playing #play-icon { display: none; }
+        #music-toggle.paused #pause-icon { display: none; }
+
+
+        /* --- Responsive Design --- */
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            /* Reduce padding on mobile to give content more space */
-            .container {
-                margin: 20px auto;
-                padding: 30px 25px;
-            }
-
-            /* Adjust typography for smaller screens */
-            h1 { font-size: 2.8em; }
-            h2 { font-size: 1.3em; margin-top: 20px;}
-            h3 { font-size: 1.8em; }
-            p { font-size: 1em; }
-
-            .poem {
-                padding: 20px;
-                font-size: 1.1em;
-            }
-
-            .reasons-list {
-                padding-left: 20px;
-            }
-
-            .reasons-list li {
-                padding-left: 10px;
-            }
+            #reveal-container h1 { font-size: 2rem; }
+            .letter-paper { padding: 40px 25px; transform: rotate(0deg); }
+            .letter-body p { font-size: 1.5rem; }
+            .closing { font-size: 1.6rem; }
+            .signature-name { font-size: 1.9rem; }
+            #music-toggle { bottom: 15px; right: 15px; }
         }
 
     </style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <h2>A little corner of the internet, built just for you</h2>
-        <h1>For My One and Only, Lovely</h1>
-        
-        <p>
-            Hello, my love. I know I don't always have the perfect words. Sometimes I try to say how much you mean to me, and my thoughts get all tangled up. So, I built this little place for you. It’s a quiet spot where I can try to show you a tiny piece of the universe you've created in my heart.
-        </p>
+    <!-- The magical background particles -->
+    <canvas id="particle-canvas"></canvas>
 
-        <div class="poem">I named you LOVELY,
-A single word to define a work of art.
-But a name alone could never hold,
-The beautiful story I’ve seen unfold.
+    <!-- The initial state: a beautiful envelope -->
+    <div id="reveal-container">
+        <!-- ### EDIT THE OPENING TITLE HERE ### -->
+        <h1>A Message from the Stars</h1>
 
-Your laugh is like the softest chime,
-That makes me forget the track of time.
-Your smile, a sudden, gentle dawn,
-That all my worries are withdrawn from.
-
-You find the magic in simple things,
-The quiet joy that a moment brings.
-A shared glance, a hand to hold,
-A story whispered, more precious than gold.
-
-It isn't just the name you bear,
-It's in your soul, it's in the air.
-You're lovely in the way you see the world,
-In every kind and gentle word.
-
-So yes, I named you LOVELY, it's true,
-But the word’s real meaning, I found in you. ❤️ forever 
+        <div class="envelope-wrapper" id="envelope">
+            <div class="letter"></div>
+            <div class="envelope-back"></div>
+            <div class="envelope-flap"></div>
+            <div class="seal"><i class="fas fa-heart"></i></div>
         </div>
-        
-        <h3>A Few Reasons Why You're My Everything</h3>
-        
-        <ul class="reasons-list">
-            <li>The way your eyes light up when you smile.</li>
-            <li>Your incredible kindness, which makes the world brighter.</li>
-            <li>How an ordinary day becomes an adventure with you.</li>
-            <li>The feeling of home I find whenever I'm with you.</li>
-            <li>Because you love me for exactly who I am.</li>
-        </ul>
-        
-        <p class="final-promise">
-            This page is just a small digital symbol of a feeling that is too big for any screen. My promise to you is to spend my life trying to make you feel as happy, as safe, and as cherished as you make me feel every single day. You are my favorite person, my calm in the storm, and my greatest adventure.
-        </p>
-
-        <p class="signature">
-            With All My Love, Forever and Always
-        </p>
     </div>
+    
+    <!-- The main content: your magical letter -->
+    <div id="letter-container">
+        <div class="letter-paper">
+            <div class="letter-body">
+                <!-- ### EDIT THE LETTER CONTENT BELOW ### -->
+                <p>
+                    I wanted to capture a moment and send it to you. Not with ordinary words, but with a touch of magic, because that's what you bring into my world. In the quiet moments, I often think of you, and the universe feels a little brighter, a little warmer.
+                </p>
+                <p>
+                    This is just a small reminder that you are cherished more than words can say. May your days be filled with as much wonder as a starlit night and as much joy as a song you can't help but dance to.
+                </p>
+            </div>
+            
+            <div class="letter-closing">
+                <!-- ### EDIT YOUR SIGNATURE HERE ### -->
+                <p class="closing">All my love,</p>
+                <p class="signature-name">Someone Specia( Husband )</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Music Player -->
+    <audio id="background-music" loop>
+        <!-- Royalty-free music from Pixabay -->
+        <source src="https://cdn.pixabay.com/download/audio/2022/10/24/audio_9247190d1f.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <button id="music-toggle" class="paused">
+        <i id="play-icon" class="fas fa-play"></i>
+        <i id="pause-icon" class="fas fa-pause"></i>
+    </button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- Magical Cursor Trail ---
+        document.addEventListener('mousemove', (e) => {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            document.body.appendChild(trail);
+            trail.style.left = e.clientX + 'px';
+            trail.style.top = e.clientY + 'px';
+            setTimeout(() => {
+                trail.remove();
+            }, 500);
+        });
+
+        // --- Particle Background Animation ---
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray;
+
+        const particleCount = 100;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.opacity = Math.random() * 0.5 + 0.3;
+            }
+            update() {
+                this.y -= this.speedY;
+                if (this.y < 0) {
+                    this.y = canvas.height;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(247, 215, 148, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            for (let i = 0; i < particleCount; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+
+        // --- Envelope Opening Interaction ---
+        const envelope = document.getElementById('envelope');
+        const revealContainer = document.getElementById('reveal-container');
+        const letterContainer = document.getElementById('letter-container');
+        const musicToggle = document.getElementById('music-toggle');
+        const audio = document.getElementById('background-music');
+
+        envelope.addEventListener('click', () => {
+            envelope.classList.add('opened');
+
+            setTimeout(() => {
+                revealContainer.style.transition = 'opacity 1s ease-out';
+                revealContainer.style.opacity = '0';
+                
+                setTimeout(() => {
+                    revealContainer.style.display = 'none';
+                    letterContainer.style.display = 'flex';
+                    musicToggle.style.display = 'flex'; // Show the music button
+                }, 1000);
+                
+            }, 1400); // Wait for envelope animation to mostly finish
+        });
+
+
+        // --- Music Controls ---
+        musicToggle.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                musicToggle.classList.remove('paused');
+                musicToggle.classList.add('playing');
+            } else {
+                audio.pause();
+                musicToggle.classList.remove('playing');
+                musicToggle.classList.add('paused');
+            }
+        });
+    });
+</script>
 
 </body>
 </html>
