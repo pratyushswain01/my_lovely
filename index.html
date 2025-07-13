@@ -3,28 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Magical Message For You</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Quintessential&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <title>The Digital Fan</title>
     <style>
+        /* --- General Styles --- */
         :root {
-            --bg-grad-start: #23153c; /* Deeper purple */
-            --bg-grad-mid: #4a2f58;
-            --bg-grad-end: #1e132b;
-            --paper-bg: rgba(255, 250, 240, 0.95); /* Floral white, slightly transparent */
-            --text-color: #4a3b31;
-            --gold-accent: #f7d794;
-            --seal-color: #e57373; /* A soft, warm red for the seal */
-            --font-cursive: 'Dancing Script', cursive;
-            --font-elegant: 'Quintessential', cursive;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --fan-color: #7d8e9b;
+            --stand-color: #515e68;
+            --bg-color: #f0f4f8;
+            --control-panel-bg: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --switch-on-color: #4CAF50;
+            --switch-off-color: #ccc;
+            /* The --speed variable will be controlled by JavaScript */
+            --speed: 1s; 
         }
 
         body {
@@ -32,432 +23,315 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: radial-gradient(ellipse at bottom, var(--bg-grad-start) 0%, var(--bg-grad-mid) 50%, var(--bg-grad-end) 100%);
-            font-family: var(--font-elegant), sans-serif;
-            overflow: hidden;
-            perspective: 1000px;
-            cursor: none; /* Hide default cursor */
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            flex-direction: column;
+            color: var(--stand-color);
         }
 
-        /* --- Magical Particle Canvas --- */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        /* --- Magical Cursor --- */
-        .cursor-trail {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: var(--gold-accent);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            animation: fadeOut 0.5s forwards;
-            box-shadow: 0 0 10px var(--gold-accent), 0 0 20px var(--gold-accent);
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            to { opacity: 0; transform: translate(-50%, -50%) scale(0); }
-        }
-
-        /* --- Envelope Section --- */
-        #reveal-container {
-            position: relative;
-            z-index: 10;
+        .container {
             text-align: center;
-            color: #fff;
-            animation: fadeIn 2s ease-in-out;
         }
 
-        #reveal-container h1 {
-            font-family: var(--font-cursive);
-            font-size: 3rem;
-            margin-bottom: 30px;
-            text-shadow: 0 0 15px rgba(247, 215, 148, 0.7);
-        }
-        
-        .instruction {
-            margin-top: 25px;
-            font-family: var(--font-elegant);
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1rem;
-            text-shadow: 0 0 5px rgba(247, 215, 148, 0.5);
-            animation: pulse 3s infinite ease-in-out;
+        h1 {
+            margin-bottom: 10px;
+            font-weight: 300;
+            font-size: 2.5em;
         }
 
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
+        p {
+            margin-top: 0;
+            margin-bottom: 40px;
+            color: #888;
         }
 
-        .envelope-wrapper {
+        /* --- Fan Structure --- */
+        .fan-assembly {
             position: relative;
             width: 300px;
-            height: 200px;
-            cursor: pointer;
-            transition: transform 0.5s ease;
-        }
-
-        .envelope-wrapper:hover {
-            transform: translateY(-10px) scale(1.05);
+            height: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
-        .envelope-wrapper.opened .envelope-flap {
-            transform: rotateX(180deg);
-            transition: transform 0.7s 0.3s ease-out;
-            z-index: 5;
-        }
-
-        .envelope-wrapper.opened .letter {
-            transform: translateY(-120px);
-            transition: transform 0.7s 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-
-        .envelope-back {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #a7bed3;
-            border-radius: 5px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        
-        .letter {
-            position: absolute;
-            bottom: 0;
-            left: 5%;
-            width: 90%;
-            height: 95%;
-            background: var(--paper-bg);
-            border-radius: 5px 5px 0 0;
-            z-index: 6;
-            transition: transform 0.5s ease-out;
-        }
-        
-        .envelope-flap {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            background-color: #a7bed3;
-            transform-origin: top;
-            border-radius: 5px 5px 0 0;
-            border-bottom: 2px solid #94aebd;
-            clip-path: polygon(0 0, 100% 0, 50% 100%);
-            z-index: 20;
-            transition: transform 0.5s ease;
-        }
-
-        .seal {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            background: var(--seal-color);
+        .fan-head {
+            width: 250px;
+            height: 250px;
+            border: 15px solid var(--fan-color);
             border-radius: 50%;
-            z-index: 21;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.4), inset 0 -2px 2px rgba(0,0,0,0.2);
+            background-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 5px 15px var(--shadow-color), inset 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: rgba(255,255,255,0.7);
         }
-        .seal .fa-heart {
-            font-size: 20px;
-        }
-        
-        /* --- The Actual Letter Paper --- */
-        #letter-container {
-            display: none; /* Initially hidden */
+
+        .blades {
+            width: 100%;
+            height: 100%;
             position: relative;
-            z-index: 10;
-            width: 90%;
-            max-width: 700px;
-            animation: fadeInLetter 1s 0.5s ease-out forwards;
-            opacity: 0;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* --- Animation --- */
+        .blades.on {
+            animation: spin var(--speed) linear infinite;
         }
 
-        @keyframes fadeInLetter {
-            from { opacity: 0; transform: scale(0.9) rotate(-3deg); }
-            to { opacity: 1; transform: scale(1) rotate(0); }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        .letter-paper {
-            background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAEsBHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fAQsLCwsLDgsLCw4NDgsNDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDg4NDv/AABEIAKAAoAMBIgACEQEDEQH/xABgAAEAAwEAAAAAAAAAAAAAAAAAAgQFAwEBAAAAAAAAAAAAAAAAAAAAAVABAQEAAAAAAAAAAAAAAAAAAHwBEQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/ANj+EBAAAAAAAAAMgACIgABIIAgkBAQAAAAAAAAAAIDIKSIgIggCCQEBKWAAAAAIAAAAAIDIKSIggIBAQCSkBAZgYBAAAAAABAZBUSIkIIEAkpAQKAgMAAAAACAAACAyCkiSCUQAgJAYEAwAAACgQAAACAqCIqJEFQBAZBAaAgAAAAKBABAQEVEVBVIkoCEkBoCAAAAUCgSAgKiJVIlViUECRgGgIAAKBQIBAVEVYkCVCRkCRgGgAAACgQCASsSJAgZAYBA0AAAAAAUAgErEkZAgZAaAaAAAAAAAAKAQCViYkCBgGgGgAAAAAAAAAAUCKlZIgYAAAAAAAAAAAAVKkZAAAAAAAAAAAAAAAAAqVkAAAAAAAAAAAAAAAAAA//Z');
-            background-color: var(--paper-bg);
-            background-size: cover;
-            background-blend-mode: overlay;
-            padding: 50px 60px;
-            border-radius: 5px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255, 255, 255, 0.2);
-            transform: rotate(-1.5deg);
-        }
-
-        .letter-body p {
-            font-family: var(--font-cursive);
-            font-size: 2rem;
-            line-height: 1.8;
-            color: var(--text-color);
-            margin-bottom: 25px;
-            text-indent: 2em;
+        .blade {
+            position: absolute;
+            width: 45%;
+            height: 45%;
+            background-color: var(--fan-color);
+            left: 50%;
+            top: 50%;
+            transform-origin: 0% 0%;
+            border-radius: 100% 0;
+            opacity: 0.9;
         }
         
-        .letter-closing {
-            margin-top: 50px;
-            text-align: right;
-        }
+        .blade-1 { transform: rotate(0deg); }
+        .blade-2 { transform: rotate(90deg); }
+        .blade-3 { transform: rotate(180deg); }
+        .blade-4 { transform: rotate(270deg); }
 
-        .closing, .signature-name {
-            font-family: var(--font-cursive);
-            font-size: 2.2rem;
-            color: var(--text-color);
-            line-height: 1.4;
-        }
-
-        .signature-name {
-            font-size: 2.5rem;
-            font-weight: 700;
-            opacity: 0;
-            animation: sign 1s ease-out 1.5s forwards; /* Delayed signature animation */
-        }
-        
-        @keyframes sign {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- Music Control --- */
-        #music-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
+        .center-cap {
             width: 50px;
             height: 50px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: var(--stand-color);
             border-radius: 50%;
-            display: none; /* Hidden until letter is shown */
-            justify-content: center;
+            position: absolute;
+            z-index: 1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .stand {
+            width: 20px;
+            height: 150px;
+            background: var(--stand-color);
+            margin-top: -10px;
+            z-index: -1;
+        }
+
+        .base {
+            width: 150px;
+            height: 20px;
+            background: var(--stand-color);
+            border-radius: 10px 10px 0 0;
+        }
+
+        /* --- Controls --- */
+        .controls {
+            background: var(--control-panel-bg);
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            margin-top: 40px;
+            width: 350px;
+        }
+
+        .control-group {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-group label {
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        /* Power Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
             cursor: pointer;
-            backdrop-filter: blur(5px);
-            font-size: 20px;
-            transition: all 0.3s ease;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--switch-off-color);
+            transition: .4s;
+            border-radius: 34px;
         }
-        #music-toggle:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
         }
-        #music-toggle.playing #play-icon { display: none; }
-        #music-toggle.paused #pause-icon { display: none; }
 
+        input:checked + .slider {
+            background-color: var(--switch-on-color);
+        }
 
-        /* --- Responsive Design --- */
-        @media (max-width: 768px) {
-            #reveal-container h1 { font-size: 2rem; }
-            .letter-paper { padding: 40px 25px; transform: rotate(0deg); }
-            .letter-body p { font-size: 1.5rem; }
-            .closing { font-size: 1.6rem; }
-            .signature-name { font-size: 1.9rem; }
-            #music-toggle { bottom: 15px; right: 15px; }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Speed Regulator */
+        .regulator-group {
+            display: flex;
+            align-items: center;
+            width: 65%;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--stand-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--stand-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        input[type="range"]:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        input[type="range"]:disabled::-webkit-slider-thumb {
+            background: #999;
+        }
+         input[type="range"]:disabled::-moz-range-thumb {
+            background: #999;
         }
 
     </style>
 </head>
 <body>
 
-    <!-- The magical background particles -->
-    <canvas id="particle-canvas"></canvas>
+    <div class="container">
+        <h1> Cool Down my Lovely...</h1>
+        <p>For when you feel hot. Adjust the controls below.</p>
 
-    <!-- The initial state: a beautiful envelope -->
-    <div id="reveal-container">
-        <!-- ### EDIT THE OPENING TITLE HERE ### -->
-        <h1>For My Dearest Lovely</h1>
-
-        <div class="envelope-wrapper" id="envelope">
-            <div class="letter"></div>
-            <div class="envelope-back"></div>
-            <div class="envelope-flap"></div>
-            <div class="seal"><i class="fas fa-heart"></i></div>
-        </div>
-        <p class="instruction">(Click the envelope to open)</p>
-    </div>
-    
-    <!-- The main content: your magical letter -->
-    <div id="letter-container">
-        <div class="letter-paper">
-            <div class="letter-body">
-                <!-- ### EDIT THE LETTER CONTENT BELOW ### -->
-                <p>
-                    My dearest Lovely, sometimes words feel too small to hold all the love I have for you. So I borrowed a little magic from the stars to send you this message, hoping it can capture a fraction of the light you bring into my life.
-                </p>
-                <p>
-                    With you, every ordinary day feels extraordinary. You are my calm in the storm, my brightest star in the darkest night, and the beautiful music that my heart dances to. Thank you for being you. Thank you for being mine.
-                </p>
+        <div class="fan-assembly">
+            <div class="fan-head">
+                <div class="blades" id="fan-blades">
+                    <div class="blade blade-1"></div>
+                    <div class="blade blade-2"></div>
+                    <div class="blade blade-3"></div>
+                    <div class="blade blade-4"></div>
+                </div>
+                <div class="center-cap"></div>
             </div>
-            
-            <div class="letter-closing">
-                <!-- ### EDIT YOUR SIGNATURE HERE ### -->
-                <p class="closing">Forever and always,</p>
-                <p class="signature-name">Your loving husband</p>
+            <div class="stand"></div>
+            <div class="base"></div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="power-switch">Power</label>
+                <label class="switch">
+                    <input type="checkbox" id="power-switch">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label for="speed-regulator">Speed</label>
+                <div class="regulator-group">
+                    <input type="range" min="1" max="5" value="1" id="speed-regulator" disabled>
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- Music Player -->
-    <audio id="background-music" loop>
-        <!-- Royalty-free romantic piano music from Pixabay -->
-        <source src="https://cdn.pixabay.com/download/audio/2022/02/14/audio_34356486b1.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-    <button id="music-toggle" class="paused">
-        <i id="play-icon" class="fas fa-play"></i>
-        <i id="pause-icon" class="fas fa-pause"></i>
-    </button>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
+    <script>
+        // --- Get DOM Elements ---
+        const powerSwitch = document.getElementById('power-switch');
+        const speedRegulator = document.getElementById('speed-regulator');
+        const fanBlades = document.getElementById('fan-blades');
 
-        // --- Magical Cursor Trail ---
-        document.addEventListener('mousemove', (e) => {
-            const trail = document.createElement('div');
-            trail.className = 'cursor-trail';
-            document.body.appendChild(trail);
-            trail.style.left = e.clientX + 'px';
-            trail.style.top = e.clientY + 'px';
-            setTimeout(() => {
-                trail.remove();
-            }, 500);
-        });
-
-        // --- Particle Background Animation ---
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let particlesArray;
-
-        const particleCount = 100;
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
-                this.speedY = Math.random() * 0.5 + 0.1; // Slower, more gentle upward drift
-                this.opacity = Math.random() * 0.5 + 0.3;
-            }
-            update() {
-                this.y -= this.speedY;
-                if (this.y < 0) {
-                    this.y = canvas.height;
-                    this.x = Math.random() * canvas.width;
-                }
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(247, 215, 148, ${this.opacity})`;
-                ctx.fill();
-            }
-        }
-
-        function initParticles() {
-            particlesArray = [];
-            for (let i = 0; i < particleCount; i++) {
-                particlesArray.push(new Particle());
-            }
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-                particlesArray[i].draw();
-            }
-            requestAnimationFrame(animateParticles);
-        }
-
-        initParticles();
-        animateParticles();
+        // --- Speeds mapping (from regulator value to animation duration in seconds) ---
+        const speeds = {
+            1: '1.2s', // Slowest
+            2: '0.8s',
+            3: '0.5s',
+            4: '0.3s',
+            5: '0.15s' // Fastest
+        };
         
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            initParticles();
-        });
-
-
-        // --- Envelope Opening Interaction ---
-        const envelope = document.getElementById('envelope');
-        const revealContainer = document.getElementById('reveal-container');
-        const letterContainer = document.getElementById('letter-container');
-        const musicToggle = document.getElementById('music-toggle');
-        const audio = document.getElementById('background-music');
-
-        envelope.addEventListener('click', () => {
-            if (envelope.classList.contains('opened')) return; // Prevent re-triggering
-
-            envelope.classList.add('opened');
-
-            // Attempt to play audio on user interaction
-            audio.play().catch(() => {
-                // If autoplay fails, the user can still click the button
-                console.log("Audio autoplay was blocked by the browser.");
-            });
-            musicToggle.classList.remove('paused');
-            musicToggle.classList.add('playing');
-
-            setTimeout(() => {
-                revealContainer.style.transition = 'opacity 1s ease-out';
-                revealContainer.style.opacity = '0';
-                
-                setTimeout(() => {
-                    revealContainer.style.display = 'none';
-                    letterContainer.style.display = 'flex'; // Use flex for centering
-                    musicToggle.style.display = 'flex'; // Show the music button
-                }, 1000);
-                
-            }, 1400); // Wait for envelope animation to mostly finish
-        });
-
-
-        // --- Music Controls ---
-        musicToggle.addEventListener('click', () => {
-            if (audio.paused) {
-                audio.play();
-                musicToggle.classList.remove('paused');
-                musicToggle.classList.add('playing');
+        // --- Event Listener for Power Switch ---
+        powerSwitch.addEventListener('change', () => {
+            if (powerSwitch.checked) {
+                // Fan is ON
+                fanBlades.classList.add('on');
+                speedRegulator.disabled = false;
+                // Set initial speed when turning on
+                const currentSpeed = speedRegulator.value;
+                fanBlades.style.setProperty('--speed', speeds[currentSpeed]);
             } else {
-                audio.pause();
-                musicToggle.classList.remove('playing');
-                musicToggle.classList.add('paused');
+                // Fan is OFF
+                fanBlades.classList.remove('on');
+                speedRegulator.disabled = true;
             }
         });
-    });
-</script>
 
+        // --- Event Listener for Speed Regulator ---
+        // 'input' event fires continuously as the slider is moved
+        speedRegulator.addEventListener('input', () => {
+            // Only change speed if the fan is on
+            if (powerSwitch.checked) {
+                const newSpeedValue = speedRegulator.value;
+                fanBlades.style.setProperty('--speed', speeds[newSpeedValue]);
+            }
+        });
+
+    </script>
 </body>
 </html>
