@@ -2,336 +2,384 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Digital Fan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>A Message From The Stars For Lovely</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Upright:wght@400;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* --- General Styles --- */
         :root {
-            --fan-color: #7d8e9b;
-            --stand-color: #515e68;
-            --bg-color: #f0f4f8;
-            --control-panel-bg: #ffffff;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --switch-on-color: #4CAF50;
-            --switch-off-color: #ccc;
-            /* The --speed variable will be controlled by JavaScript */
-            --speed: 1s; 
+            --bg-color: #00000a;
+            --star-color: #ffffff;
+            --star-glow: #e0e8ff;
+            --line-color: rgba(224, 232, 255, 0.4);
+            --text-color: #f0f8ff;
+            --signature-color: #ffe4a1;
+            --nebula-1: #56224f;
+            --nebula-2: #2e308b;
+            --font-serif: 'Cormorant Upright', serif;
+            --font-cursive: 'Dancing Script', cursive;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100dvh; /* Dynamic viewport height for mobile */
+            overflow: hidden;
+            background-color: var(--bg-color);
+            -webkit-tap-highlight-color: transparent; /* Removes blue tap highlight on iOS */
+            user-select: none; /* Prevents text selection */
         }
 
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background-color: var(--bg-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            flex-direction: column;
-            color: var(--stand-color);
+            font-family: var(--font-serif);
+            transition: background 3s ease-in-out;
         }
 
-        .container {
-            text-align: center;
-        }
-
-        h1 {
-            margin-bottom: 10px;
-            font-weight: 300;
-            font-size: 2.5em;
-        }
-
-        p {
-            margin-top: 0;
-            margin-bottom: 40px;
-            color: #888;
-        }
-
-        /* --- Fan Structure --- */
-        .fan-assembly {
-            position: relative;
-            width: 300px;
-            height: 420px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .fan-head {
-            width: 250px;
-            height: 250px;
-            border: 15px solid var(--fan-color);
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 5px 15px var(--shadow-color), inset 0 0 10px rgba(0,0,0,0.1);
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .blades {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-
-        /* --- Animation --- */
-        .blades.on {
-            animation: spin var(--speed) linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .blade {
-            position: absolute;
-            width: 45%;
-            height: 45%;
-            background-color: var(--fan-color);
-            left: 50%;
-            top: 50%;
-            transform-origin: 0% 0%;
-            border-radius: 100% 0;
-            opacity: 0.9;
-        }
-        
-        .blade-1 { transform: rotate(0deg); }
-        .blade-2 { transform: rotate(90deg); }
-        .blade-3 { transform: rotate(180deg); }
-        .blade-4 { transform: rotate(270deg); }
-
-        .center-cap {
-            width: 50px;
-            height: 50px;
-            background: var(--stand-color);
-            border-radius: 50%;
-            position: absolute;
-            z-index: 1;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .stand {
-            width: 20px;
-            height: 150px;
-            background: var(--stand-color);
-            margin-top: -10px;
-            z-index: -1;
-        }
-
-        .base {
-            width: 150px;
-            height: 20px;
-            background: var(--stand-color);
-            border-radius: 10px 10px 0 0;
-        }
-
-        /* --- Controls --- */
-        .controls {
-            background: var(--control-panel-bg);
-            padding: 25px 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px var(--shadow-color);
-            margin-top: 40px;
-            width: 350px;
-        }
-
-        .control-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .control-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .control-group label {
-            font-size: 1.1em;
-            color: #333;
-        }
-
-        /* Power Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
+        /* --- Dynamic Canvases --- */
+        #star-canvas, #constellation-canvas {
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--switch-off-color);
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--switch-on-color);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        /* Speed Regulator */
-        .regulator-group {
-            display: flex;
-            align-items: center;
-            width: 65%;
-        }
-
-        input[type="range"] {
-            -webkit-appearance: none;
             width: 100%;
-            height: 8px;
-            background: #d3d3d3;
-            outline: none;
-            opacity: 0.7;
-            transition: opacity .2s;
-            border-radius: 5px;
-            cursor: pointer;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        #star-canvas {
+            opacity: 0;
+            transition: opacity 3s ease-in-out;
         }
 
-        input[type="range"]:hover {
+        #constellation-canvas {
+            z-index: 10;
+        }
+        
+        /* --- State-driven visual changes --- */
+        body.state-drawing #star-canvas,
+        body.state-finished #star-canvas {
             opacity: 1;
         }
         
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--stand-color);
-            border-radius: 50%;
-            cursor: pointer;
+        body.state-finished {
+            background: radial-gradient(ellipse at 70% 30%, var(--nebula-1) 0%, transparent 80%),
+                        radial-gradient(ellipse at 30% 70%, var(--nebula-2) 0%, transparent 80%),
+                        var(--bg-color);
         }
 
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: var(--stand-color);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-        
-        input[type="range"]:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        
-        input[type="range"]:disabled::-webkit-slider-thumb {
-            background: #999;
-        }
-         input[type="range"]:disabled::-moz-range-thumb {
-            background: #999;
+        /* --- UI Layer & Messages --- */
+        .ui-layer {
+            position: relative;
+            z-index: 20;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--text-color);
+            padding: 20px;
+            pointer-events: none; /* Allows clicks to pass through to the canvas */
         }
 
+        .message-group {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 1.5s ease-out;
+        }
+
+        /* INTRO STATE */
+        body.state-intro .message-group.intro-message {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .intro-message h1 {
+            font-size: 2rem;
+            font-weight: 400;
+            text-shadow: 0 0 10px var(--star-glow);
+            animation: pulse 4s infinite ease-in-out;
+        }
+
+        /* FINISHED STATE */
+        body.state-finished .message-group.final-message {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .final-message p {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            text-shadow: 0 0 5px var(--star-glow);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInText 1.5s ease-out forwards;
+        }
+
+        .final-message .signature {
+            font-family: var(--font-cursive);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            color: var(--signature-color);
+            text-shadow: 0 0 10px var(--signature-color);
+            margin-top: 3rem;
+        }
+
+        .final-message p:nth-of-type(1) { animation-delay: 1.5s; }
+        .final-message p:nth-of-type(2) { animation-delay: 3.5s; }
+        .final-message .signature { animation-delay: 5.5s; }
+
+        #restart-button {
+            margin-top: 3rem;
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            background: none;
+            border: 1px solid var(--text-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            pointer-events: all;
+            opacity: 0;
+            animation: fadeInText 1.5s 7s ease-out forwards;
+            transition: all 0.3s ease;
+        }
+
+        #restart-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px var(--star-glow);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
+        }
+        
+        @keyframes fadeInText {
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-<body>
+<body class="state-intro">
 
-    <div class="container">
-        <h1> Cool Down my Lovely...</h1>
-        <p>For when you feel hot. Adjust the controls below.</p>
-
-        <div class="fan-assembly">
-            <div class="fan-head">
-                <div class="blades" id="fan-blades">
-                    <div class="blade blade-1"></div>
-                    <div class="blade blade-2"></div>
-                    <div class="blade blade-3"></div>
-                    <div class="blade blade-4"></div>
-                </div>
-                <div class="center-cap"></div>
-            </div>
-            <div class="stand"></div>
-            <div class="base"></div>
+    <canvas id="star-canvas"></canvas>
+    <canvas id="constellation-canvas"></canvas>
+    
+    <div class="ui-layer">
+        <div class="message-group intro-message">
+            <h1>Touch anywhere to begin...</h1>
         </div>
-
-        <div class="controls">
-            <div class="control-group">
-                <label for="power-switch">Power</label>
-                <label class="switch">
-                    <input type="checkbox" id="power-switch">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="control-group">
-                <label for="speed-regulator">Speed</label>
-                <div class="regulator-group">
-                    <input type="range" min="1" max="5" value="1" id="speed-regulator" disabled>
-                </div>
-            </div>
+        
+        <div class="message-group final-message">
+            <!-- ### EDIT YOUR PERSONAL MESSAGE HERE ### -->
+            <p>For my lovely,</p>
+            <p>Out of all the stars in the universe, it was you I found. You are the constellation that guides me, and the light that makes my world complete.</p>
+            <p class="signature">Forever yours, Your Husband</p>
+            <button id="restart-button">Relive the Moment</button>
         </div>
     </div>
+    
+    <audio id="background-music" preload="auto">
+        <!-- Royalty-free magical music: "A-Gentle-Touch" by AShamaluevMusic -->
+        <source src="https://cdn.pixabay.com/download/audio/2023/12/11/audio_a16827a44a.mp3" type="audio/mpeg">
+    </audio>
 
-    <script>
-        // --- Get DOM Elements ---
-        const powerSwitch = document.getElementById('power-switch');
-        const speedRegulator = document.getElementById('speed-regulator');
-        const fanBlades = document.getElementById('fan-blades');
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
-        // --- Speeds mapping (from regulator value to animation duration in seconds) ---
-        const speeds = {
-            1: '1.2s', // Slowest
-            2: '0.8s',
-            3: '0.5s',
-            4: '0.3s',
-            5: '0.15s' // Fastest
-        };
+    // --- DOM & CORE ELEMENTS ---
+    const body = document.body;
+    const audio = document.getElementById('background-music');
+    const starCanvas = document.getElementById('star-canvas');
+    const starCtx = starCanvas.getContext('2d');
+    const conCanvas = document.getElementById('constellation-canvas');
+    const conCtx = conCanvas.getContext('2d');
+    
+    // Helper function to get CSS variable values in JS
+    const getCSSVar = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+    // --- STATE MANAGEMENT ---
+    let state = 'intro';
+    let points = [];
+    const requiredPoints = 5;
+    let heartShape = [];
+
+    // --- SETUP FUNCTION ---
+    function setup() {
+        // Set canvas sizes
+        starCanvas.width = window.innerWidth;
+        starCanvas.height = window.innerHeight;
+        conCanvas.width = window.innerWidth;
+        conCanvas.height = window.innerHeight;
+
+        // Define the constellation shape based on current screen size
+        const shape_scale = Math.min(conCanvas.width * 0.4, conCanvas.height * 0.4);
+        const center_x = conCanvas.width / 2;
+        const center_y = conCanvas.height / 2;
+
+        heartShape = [
+            { x: 0, y: -0.2 }, { x: 0.3, y: -0.5 }, { x: 0.5, y: -0.2 },
+            { x: 0, y: 0.4 }, { x: -0.5, y: -0.2 }
+        ].map(p => ({
+            x: center_x + p.x * shape_scale,
+            y: center_y + p.y * shape_scale
+        }));
+    }
+
+    // --- BACKGROUND STARFIELD ---
+    let stars = [];
+    function initStars() {
+        stars = [];
+        const numStars = window.innerWidth > 768 ? 200 : 100;
+        for (let i = 0; i < numStars; i++) {
+            stars.push({
+                x: Math.random() * starCanvas.width,
+                y: Math.random() * starCanvas.height,
+                size: Math.random() * 1.5 + 0.5,
+                opacity: Math.random() * 0.8,
+                speed: Math.random() * 0.1 + 0.05
+            });
+        }
+    }
+    
+    // --- DRAWING & ANIMATION LOOP ---
+    function animate() {
+        // Animate background stars
+        starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+        stars.forEach(s => {
+            starCtx.beginPath();
+            starCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            starCtx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
+            starCtx.fill();
+            s.y -= s.speed;
+            if (s.y < 0) s.y = starCanvas.height;
+        });
+        requestAnimationFrame(animate);
+    }
+    
+    function drawConstellation() {
+        conCtx.clearRect(0, 0, conCanvas.width, conCanvas.height);
         
-        // --- Event Listener for Power Switch ---
-        powerSwitch.addEventListener('change', () => {
-            if (powerSwitch.checked) {
-                // Fan is ON
-                fanBlades.classList.add('on');
-                speedRegulator.disabled = false;
-                // Set initial speed when turning on
-                const currentSpeed = speedRegulator.value;
-                fanBlades.style.setProperty('--speed', speeds[currentSpeed]);
-            } else {
-                // Fan is OFF
-                fanBlades.classList.remove('on');
-                speedRegulator.disabled = true;
-            }
+        // Draw connected lines
+        if (points.length > 1) {
+            conCtx.beginPath();
+            conCtx.moveTo(points[0].x, points[0].y);
+            for(let i = 1; i < points.length; i++) conCtx.lineTo(points[i].x, points[i].y);
+            conCtx.strokeStyle = getCSSVar('--line-color');
+            conCtx.lineWidth = 1;
+            conCtx.stroke();
+        }
+
+        // Draw activated stars
+        points.forEach(p => {
+            conCtx.beginPath();
+            conCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            conCtx.fillStyle = getCSSVar('--star-color');
+            conCtx.shadowColor = getCSSVar('--star-glow');
+            conCtx.shadowBlur = 15;
+            conCtx.fill();
+            conCtx.shadowBlur = 0;
         });
 
-        // --- Event Listener for Speed Regulator ---
-        // 'input' event fires continuously as the slider is moved
-        speedRegulator.addEventListener('input', () => {
-            // Only change speed if the fan is on
-            if (powerSwitch.checked) {
-                const newSpeedValue = speedRegulator.value;
-                fanBlades.style.setProperty('--speed', speeds[newSpeedValue]);
-            }
-        });
+        // Draw the next target dot
+        if (state === 'drawing' && points.length < requiredPoints) {
+            const nextPoint = heartShape[points.length];
+            conCtx.beginPath();
+            conCtx.arc(nextPoint.x, nextPoint.y, 4, 0, Math.PI * 2);
+            conCtx.fillStyle = 'rgba(255,255,255,0.3)';
+            conCtx.shadowColor = getCSSVar('--star-glow');
+            conCtx.shadowBlur = 10;
+            conCtx.fill();
+            conCtx.shadowBlur = 0;
+        }
+    }
+    
+    // --- INTERACTION HANDLING ---
+    function handleInteraction(e) {
+        let x, y;
+        if (e.touches) {
+            x = e.touches[0].clientX;
+            y = e.touches[0].clientY;
+            e.preventDefault(); // prevent scroll/zoom
+        } else {
+            x = e.clientX;
+            y = e.clientY;
+        }
 
-    </script>
+        if (state === 'intro') {
+            state = 'drawing';
+            body.className = 'state-drawing';
+            points.push({ ...heartShape[0], size: 5 });
+            drawConstellation();
+
+            audio.volume = 0;
+            audio.play().then(() => {
+                let vol = 0;
+                const fadeIn = setInterval(() => {
+                    vol += 0.05;
+                    if (vol >= 0.3) { vol = 0.3; clearInterval(fadeIn); }
+                    audio.volume = vol;
+                }, 100);
+            }).catch(err => console.error("Audio autoplay failed."));
+
+        } else if (state === 'drawing') {
+            const nextTarget = heartShape[points.length];
+            if (!nextTarget) return;
+
+            const distance = Math.hypot(x - nextTarget.x, y - nextTarget.y);
+            
+            if (distance < 40) { // Click/tap accuracy
+                points.push({ ...nextTarget, size: 5 });
+                drawConstellation();
+                
+                if (points.length >= requiredPoints) {
+                    state = 'finished';
+                    // Final line animation
+                    conCtx.beginPath();
+                    conCtx.moveTo(points[points.length-1].x, points[points.length-1].y);
+                    conCtx.lineTo(points[0].x, points[0].y);
+                    conCtx.strokeStyle = getCSSVar('--line-color');
+                    conCtx.lineWidth = 1;
+                    conCtx.stroke();
+                    // Reveal the final message
+                    body.className = 'state-finished';
+                    // Swell the music volume for the climax
+                    let vol = 0.3;
+                    const swell = setInterval(() => {
+                         vol += 0.05;
+                         if (vol >= 0.8) { vol = 0.8; clearInterval(swell); }
+                         audio.volume = vol;
+                    }, 80);
+                }
+            }
+        }
+    }
+    
+    // --- EVENT LISTENERS ---
+    conCanvas.addEventListener('mousedown', handleInteraction);
+    conCanvas.addEventListener('touchstart', handleInteraction, { passive: false });
+    document.getElementById('restart-button').addEventListener('click', () => location.reload());
+
+    window.addEventListener('resize', () => {
+        // Re-setup all sizes on resize for responsiveness
+        setup();
+        initStars();
+        drawConstellation(); 
+    });
+
+    // --- INITIALIZE THE EXPERIENCE ---
+    setup();
+    initStars();
+    animate(); // Start the background animation loop
+});
+</script>
 </body>
 </html>
