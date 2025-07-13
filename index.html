@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <style>
         :root {
-            --bg-grad-start: #0f0c29;
-            --bg-grad-mid: #302b63;
-            --bg-grad-end: #24243e;
+            --bg-grad-start: #23153c; /* Deeper purple */
+            --bg-grad-mid: #4a2f58;
+            --bg-grad-end: #1e132b;
             --paper-bg: rgba(255, 250, 240, 0.95); /* Floral white, slightly transparent */
-            --text-color: #3a322d;
+            --text-color: #4a3b31;
             --gold-accent: #f7d794;
             --seal-color: #e57373; /* A soft, warm red for the seal */
             --font-cursive: 'Dancing Script', cursive;
@@ -82,6 +82,21 @@
             font-size: 3rem;
             margin-bottom: 30px;
             text-shadow: 0 0 15px rgba(247, 215, 148, 0.7);
+        }
+        
+        .instruction {
+            margin-top: 25px;
+            font-family: var(--font-elegant);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            text-shadow: 0 0 5px rgba(247, 215, 148, 0.5);
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
         }
 
         .envelope-wrapper {
@@ -159,7 +174,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            color: rgba(0,0,0,0.3);
+            color: rgba(255,255,255,0.7);
         }
         .seal .fa-heart {
             font-size: 20px;
@@ -172,7 +187,8 @@
             z-index: 10;
             width: 90%;
             max-width: 700px;
-            animation: fadeInLetter 1s ease-out forwards;
+            animation: fadeInLetter 1s 0.5s ease-out forwards;
+            opacity: 0;
         }
 
         @keyframes fadeIn {
@@ -220,6 +236,13 @@
         .signature-name {
             font-size: 2.5rem;
             font-weight: 700;
+            opacity: 0;
+            animation: sign 1s ease-out 1.5s forwards; /* Delayed signature animation */
+        }
+        
+        @keyframes sign {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* --- Music Control --- */
@@ -270,7 +293,7 @@
     <!-- The initial state: a beautiful envelope -->
     <div id="reveal-container">
         <!-- ### EDIT THE OPENING TITLE HERE ### -->
-        <h1>A Message from the Stars</h1>
+        <h1>For My Dearest Lovely</h1>
 
         <div class="envelope-wrapper" id="envelope">
             <div class="letter"></div>
@@ -278,6 +301,7 @@
             <div class="envelope-flap"></div>
             <div class="seal"><i class="fas fa-heart"></i></div>
         </div>
+        <p class="instruction">(Click the envelope to open)</p>
     </div>
     
     <!-- The main content: your magical letter -->
@@ -286,25 +310,25 @@
             <div class="letter-body">
                 <!-- ### EDIT THE LETTER CONTENT BELOW ### -->
                 <p>
-                    I wanted to capture a moment and send it to you. Not with ordinary words, but with a touch of magic, because that's what you bring into my world. In the quiet moments, I often think of you, and the universe feels a little brighter, a little warmer.
+                    My dearest Lovely, sometimes words feel too small to hold all the love I have for you. So I borrowed a little magic from the stars to send you this message, hoping it can capture a fraction of the light you bring into my life.
                 </p>
                 <p>
-                    This is just a small reminder that you are cherished more than words can say. May your days be filled with as much wonder as a starlit night and as much joy as a song you can't help but dance to.
+                    With you, every ordinary day feels extraordinary. You are my calm in the storm, my brightest star in the darkest night, and the beautiful music that my heart dances to. Thank you for being you. Thank you for being mine.
                 </p>
             </div>
             
             <div class="letter-closing">
                 <!-- ### EDIT YOUR SIGNATURE HERE ### -->
-                <p class="closing">All my love,</p>
-                <p class="signature-name">Someone Specia( Husband )</p>
+                <p class="closing">Forever and always,</p>
+                <p class="signature-name">Your loving husband</p>
             </div>
         </div>
     </div>
     
     <!-- Music Player -->
     <audio id="background-music" loop>
-        <!-- Royalty-free music from Pixabay -->
-        <source src="https://cdn.pixabay.com/download/audio/2022/10/24/audio_9247190d1f.mp3" type="audio/mpeg">
+        <!-- Royalty-free romantic piano music from Pixabay -->
+        <source src="https://cdn.pixabay.com/download/audio/2022/02/14/audio_34356486b1.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
     <button id="music-toggle" class="paused">
@@ -342,7 +366,7 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 2 + 1;
-                this.speedY = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 0.5 + 0.1; // Slower, more gentle upward drift
                 this.opacity = Math.random() * 0.5 + 0.3;
             }
             update() {
@@ -394,7 +418,17 @@
         const audio = document.getElementById('background-music');
 
         envelope.addEventListener('click', () => {
+            if (envelope.classList.contains('opened')) return; // Prevent re-triggering
+
             envelope.classList.add('opened');
+
+            // Attempt to play audio on user interaction
+            audio.play().catch(() => {
+                // If autoplay fails, the user can still click the button
+                console.log("Audio autoplay was blocked by the browser.");
+            });
+            musicToggle.classList.remove('paused');
+            musicToggle.classList.add('playing');
 
             setTimeout(() => {
                 revealContainer.style.transition = 'opacity 1s ease-out';
@@ -402,7 +436,7 @@
                 
                 setTimeout(() => {
                     revealContainer.style.display = 'none';
-                    letterContainer.style.display = 'flex';
+                    letterContainer.style.display = 'flex'; // Use flex for centering
                     musicToggle.style.display = 'flex'; // Show the music button
                 }, 1000);
                 
