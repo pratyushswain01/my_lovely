@@ -113,24 +113,31 @@
         #envelope-wrapper.open .envelope-text {
             opacity: 0;
         }
-
+        
+        /* --- MODIFIED LETTER CONTAINER --- */
         #letter-container {
             position: absolute;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            background: #fffaf0; /* parchment paper */
-            padding: 40px 50px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-            border-radius: 5px;
+            width: 88%; /* Made slightly narrower for more side space */
+            max-width: 450px; /* Reduced max width */
+            max-height: 85vh;
+            
+            /* --- Transparency Added Here --- */
+            background-color: rgba(255, 250, 240, 0.85); /* Slightly transparent background */
+            backdrop-filter: blur(4px); /* This blurs the stars behind the letter for readability */
+            -webkit-backdrop-filter: blur(4px); /* For Safari compatibility */
+            
+            padding: 30px 35px; /* Reduced padding */
+            box-shadow: 0 10px 35px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle light border */
+            border-radius: 10px;
             text-align: left;
             opacity: 0;
             transform: scale(0.8);
             transition: all 0.8s ease-out 0.3s;
             pointer-events: none;
             overflow-y: auto;
-            line-height: 1.8;
-            font-size: 18px;
+            line-height: 1.7; /* Adjusted line height */
+            font-size: 17px; /* Adjusted font size */
         }
         
         #letter-container.visible {
@@ -158,6 +165,7 @@
             font-family: 'Nanum Myeongjo', serif;
             font-size: 16px;
             box-sizing: border-box;
+            background-color: rgba(255,255,255,0.7);
         }
         
         .shake {
@@ -177,6 +185,17 @@
         }
         button:hover { background-color: #7d6859; }
 
+        /* Mobile Optimization */
+        @media (max-width: 600px) {
+            #letter-container {
+                padding: 25px 20px;
+                font-size: 16px;
+                line-height: 1.6;
+                max-height: 80vh;
+            }
+            .star-word { font-size: 22px; }
+        }
+
         @keyframes fadeInContent { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shake {
           10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); }
@@ -187,7 +206,6 @@
             50% { opacity: 1; transform: scale(1.1); }
             100% { opacity: 1; transform: scale(1); }
         }
-
     </style>
 </head>
 <body>
@@ -292,14 +310,12 @@
             const input = document.getElementById(inputId);
             
             btn.addEventListener('click', () => {
-                // The .trim().toLowerCase() makes it case-insensitive
                 if (input.value.trim().toLowerCase() === correctAnswer) {
                     hideSection(inputId);
                     showSection(nextPartId);
                     if (nextPuzzleId) {
                         showSection(nextPuzzleId);
                     } else {
-                        // This is the final reveal after the last puzzle
                         setTimeout(createConstellation, 3000);
                     }
                 } else {
@@ -311,7 +327,7 @@
         
         checkAnswer('puzzle1-btn', 'puzzle1-input', answer1, 'part2', 'puzzle2');
         checkAnswer('puzzle2-btn', 'puzzle2-input', answer2, 'part3', 'puzzle3');
-        checkAnswer('puzzle3-btn', 'puzzle3-input', answer3, 'part4', null); // The last puzzle
+        checkAnswer('puzzle3-btn', 'puzzle3-input', answer3, 'part4', null);
         
         function createConstellation() {
             const sky = document.getElementById('star-sky');
