@@ -3,364 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Letter for My Lovely</title>
+    <title>For My Lovely</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nanum+Myeongjo&display=swap');
-
+        /* Custom styles to enhance the design */
         body {
-            margin: 0;
-            height: 100vh;
-            background: linear-gradient(180deg, #0b0f23 0%, #1e2a4a 70%, #4a6396 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            font-family: 'Nanum Myeongjo', serif;
-            color: #333;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
         }
-
-        #star-sky {
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Heart animation canvas */
+        #hearts-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: transparent;
-            overflow: hidden;
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
-            z-index: 100;
+            z-index: 9999;
         }
-
-        #star-sky.visible {
-            opacity: 1;
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        .star-word {
-            position: absolute;
-            color: #ffffff;
-            font-family: 'Dancing Script', cursive;
-            font-size: 28px;
-            text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #f0e68c;
-            opacity: 0;
-            animation: fadeInPulse 4s forwards;
+        .fade-in {
+            animation: fadeIn 1s ease-out forwards;
         }
-
-        #envelope-wrapper {
-            position: relative;
-            cursor: pointer;
-            transition: transform 1s ease-out;
-        }
-
-        #envelope-wrapper.open {
-            transform: translateY(100vh);
-        }
-
-        #envelope {
-            position: relative;
-            width: 300px;
-            height: 200px;
-            background-color: #f0e6d2;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        .flap {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            height: 100px;
-            background-color: #e6dace;
-            clip-path: polygon(50% 100%, 0 0, 100% 0);
-            transform-origin: top;
-            transition: transform 0.8s ease-in-out;
-            z-index: 2;
-        }
-
-        #envelope-wrapper.open .flap {
-            transform: rotateX(180deg);
-        }
-        
-        #seal {
-            width: 40px;
-            height: 40px;
-            background-color: #c0392b;
-            border-radius: 50%;
-            position: absolute;
-            top: 80px;
-            z-index: 3;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-            color: #f1c40f;
-            text-align: center;
-            line-height: 40px;
-            font-family: 'Dancing Script', cursive;
-            font-size: 24px;
-        }
-
-        .envelope-text {
-            font-family: 'Dancing Script', cursive;
-            font-size: 32px;
-            color: #5a4b40;
-            opacity: 1;
-            transition: opacity 0.5s;
-        }
-
-        #envelope-wrapper.open .envelope-text {
-            opacity: 0;
-        }
-        
-        /* --- MODIFIED LETTER CONTAINER --- */
-        #letter-container {
-            position: absolute;
-            width: 88%; /* Made slightly narrower for more side space */
-            max-width: 450px; /* Reduced max width */
-            max-height: 85vh;
-            
-            /* --- Transparency Added Here --- */
-            background-color: rgba(255, 250, 240, 0.85); /* Slightly transparent background */
-            backdrop-filter: blur(4px); /* This blurs the stars behind the letter for readability */
-            -webkit-backdrop-filter: blur(4px); /* For Safari compatibility */
-            
-            padding: 30px 35px; /* Reduced padding */
-            box-shadow: 0 10px 35px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle light border */
-            border-radius: 10px;
-            text-align: left;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.8s ease-out 0.3s;
-            pointer-events: none;
-            overflow-y: auto;
-            line-height: 1.7; /* Adjusted line height */
-            font-size: 17px; /* Adjusted font size */
-        }
-        
-        #letter-container.visible {
-            opacity: 1;
-            transform: scale(1);
-            pointer-events: all;
-        }
-        
-        .puzzle, .letter-part {
-            display: none;
-            animation: fadeInContent 1s forwards;
-        }
-        
-        .letter-part p:first-child, .puzzle p:first-child { margin-top: 0; }
-        .letter-part p:last-child, .puzzle p:last-child { margin-bottom: 0; }
-        
-        #part1 { display: block; }
-        
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-family: 'Nanum Myeongjo', serif;
-            font-size: 16px;
-            box-sizing: border-box;
-            background-color: rgba(255,255,255,0.7);
-        }
-        
-        .shake {
-            animation: shake 0.5s;
-        }
-
-        button {
-            padding: 10px 20px;
-            background: #5a4b40;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 15px;
-            font-family: 'Nanum Myeongjo', serif;
-            transition: background-color 0.3s;
-        }
-        button:hover { background-color: #7d6859; }
-
-        /* Mobile Optimization */
-        @media (max-width: 600px) {
-            #letter-container {
-                padding: 25px 20px;
-                font-size: 16px;
-                line-height: 1.6;
-                max-height: 80vh;
-            }
-            .star-word { font-size: 22px; }
-        }
-
-        @keyframes fadeInContent { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shake {
-          10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); }
-          30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); }
-        }
-        @keyframes fadeInPulse {
-            0% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1.1); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        /* Apply staggered animations */
+        .fade-in-1 { animation-delay: 0.2s; }
+        .fade-in-2 { animation-delay: 0.4s; }
+        .fade-in-3 { animation-delay: 0.6s; }
+        .fade-in-4 { animation-delay: 0.8s; }
+        .fade-in-5 { animation-delay: 1s; }
+        .fade-in-6 { animation-delay: 1.2s; }
     </style>
 </head>
-<body>
-    <div id="star-sky"></div>
+<body class="bg-rose-50 text-slate-800">
 
-    <div id="envelope-wrapper">
-        <div id="envelope">
-            <div class="flap"></div>
-            <div id="seal">♥</div>
-            <div class="envelope-text">To My Lovely</div>
-        </div>
-    </div>
+    <!-- Canvas for the heart animation -->
+    <canvas id="hearts-canvas"></canvas>
 
-    <div id="letter-container">
-        
-        <!-- Part 1 of the Letter -->
-        <div id="part1" class="letter-part">
-            <p>My Lovely,</p>
-            <p>I know sometimes the world can feel a bit heavy, so I created this small journey just for you. This letter holds a few reminders of the happy little things that make up our world. To open it, you must answer with secrets only you would know...</p>
-        </div>
-        
-        <!-- Puzzle 1 -->
-        <div id="puzzle1" class="puzzle">
-            <p><strong>First riddle:</strong> When we share a sweet treat, there's one that's always my favorite. What is my all-time favorite ice cream flavor?</p>
-            <input type="text" id="puzzle1-input" placeholder="Type the flavor here...">
-            <button id="puzzle1-btn">Unlock the next memory</button>
-        </div>
+    <div class="container mx-auto px-4 py-8 md:py-16 max-w-4xl">
 
-        <!-- Part 2 of the Letter -->
-        <div id="part2" class="letter-part">
-            <p>That's it! Just like that flavor, you make my life sweet in the most perfect way. Every moment with you feels like that first, perfect scoop.</p>
-            <p>Now, let's see if you know my style as well as you know my tastes...</p>
-        </div>
+        <!-- Header Section -->
+        <header class="text-center mb-12 md:mb-20">
+            <h1 class="font-display text-4xl md:text-6xl text-rose-800 mb-2 fade-in fade-in-1" style="opacity:0;">For My One and Only, Lovely</h1>
+            <p class="text-lg text-slate-600 fade-in fade-in-2" style="opacity:0;">Words can't fix what I broke, but I hope they can start to mend it.</p>
+        </header>
 
-        <!-- Puzzle 2 -->
-        <div id="puzzle2" class="puzzle">
-            <p><strong>Second riddle:</strong> Out of all the colors in the world, one has always been my clear favorite. What is my favorite color?</p>
-            <input type="text" id="puzzle2-input" placeholder="Enter the color...">
-            <button id="puzzle2-btn">Reveal the next part</button>
-        </div>
-        
-        <!-- Part 3 of the Letter -->
-        <div id="part3" class="letter-part">
-            <p>Correct! You know me so well. It’s a simple color, but for me it represents strength, depth, and elegance - all things I see in you.</p>
-            <p>Just one last key is needed to fully unlock my heart...</p>
-        </div>
+        <main class="space-y-12">
 
-        <!-- Puzzle 3 -->
-        <div id="puzzle3" class="puzzle">
-            <p><strong>Final riddle:</strong> When you call me, what special name flashes on my phone screen? What have I saved your name as?</p>
-            <input type="text" id="puzzle3-input" placeholder="Your name in my phone is...">
-            <button id="puzzle3-btn">Unlock My Heart</button>
-        </div>
-        
-        <!-- The Final Message -->
-        <div id="part4" class="letter-part">
-            <p>Yes. That’s who you are to me. Not just your name, but what you represent.</p>
-            <p>Remember this always: No matter what, you are strong, you are brilliant, and you are loved more than words can say. Forget all the noise and sadness for a moment. You don't need to solve any more puzzles.</p>
-            <p>The only thing left to do is... look up.</p>
-        </div>
-        
+            <!-- The Apology Section -->
+            <section class="bg-white p-8 rounded-2xl shadow-lg fade-in fade-in-3" style="opacity:0;">
+                <h2 class="font-display text-3xl text-rose-700 mb-4">I Am So Incredibly Sorry.</h2>
+                <p class="text-slate-600 leading-relaxed">
+                    Lovely, there's no excuse for my words. I was thoughtless and careless, and I deeply regret hurting you. My foolish attempt at a joke was just that – foolish. It was never my intention to make you feel compared or unappreciated. Seeing you hurt because of my stupidity is the worst feeling in the world. From the bottom of my heart, I am truly sorry.
+                </p>
+            </section>
+
+            <!-- What I Did vs. What I Meant Section -->
+            <section class="bg-white p-8 rounded-2xl shadow-lg fade-in fade-in-4" style="opacity:0;">
+                <h2 class="font-display text-3xl text-rose-700 mb-4">My Mistake & My Meaning</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-xl mb-2 text-rose-500">What I Did Wrong</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            I brought up the past and made a comparison that was completely unfair and uncalled for. It was insensitive, and it invalidated your feelings and our beautiful relationship. I broke your trust by making you feel like you were being measured against someone else.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xl mb-2 text-green-600">What I Truly Meant</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                           There is no comparison. You are my present and my future. My past is irrelevant. What I was trying to do, in a clumsy and stupid way, was highlight how much better my life is with you in it. But my words failed completely. You are in a league of your own, and no one else even comes close.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Why You're Irreplaceable Section -->
+            <section class="bg-white p-8 rounded-2xl shadow-lg fade-in fade-in-5" style="opacity:0;">
+                <h2 class="font-display text-3xl text-rose-700 mb-4">Why You're Irreplaceable</h2>
+                <p class="text-slate-600 leading-relaxed mb-6">
+                    I love you for who you are. The little things, the big things, everything. I love...
+                </p>
+                <ul class="list-disc list-inside text-slate-600 space-y-2">
+                    <li>The way your eyes light up when you talk about something you're passionate about.</li>
+                    <li>Your kindness, not just to me, but to everyone around you.</li>
+                    <li>Your incredible sense of humor that can make me laugh even on the worst days.</li>
+                    <li>How you always know how to challenge me and make me a better person.</li>
+                </ul>
+                <p class="text-slate-600 leading-relaxed mt-6">
+                    You are my best friend and the love of my life. There is no one else like you.
+                </p>
+            </section>
+
+            <!-- A Promise & A Hope Section -->
+            <section class="text-center p-8 fade-in fade-in-6" style="opacity:0;">
+                <h2 class="font-display text-3xl text-rose-700 mb-4">My Promise to You</h2>
+                <p class="text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
+                    I promise to be more mindful of my words and more deserving of your heart. I promise to cherish what we have and never take it for granted again. My focus is on you, on us, and on our future.
+                </p>
+                <button id="promise-btn" class="bg-rose-600 text-white font-bold py-3 px-8 rounded-full hover:bg-rose-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-rose-300">
+                    A small gesture for you...
+                </button>
+                <p id="hidden-message" class="text-rose-800 mt-6 text-xl font-display" style="display: none;">You are my everything, Lovely.</p>
+            </section>
+
+        </main>
     </div>
 
     <script>
-        // These are your defined answers.
-        const answer1 = "butterscotch";
-        const answer2 = "black";
-        const answer3 = "lovely"; 
-        
-        // These words will appear as the final constellation.
-        const constellationWords = [
-            "Brilliant", "My Forever", "Kind", "My Anchor", "Beautiful",
-            "Strong", "My Love", "Inspiring", "My Home", "Magic"
-        ];
-        
-        // --- No need to edit below this line --- //
-        
-        const envelope = document.getElementById('envelope-wrapper');
-        const letter = document.getElementById('letter-container');
+        document.addEventListener('DOMContentLoaded', () => {
+            const promiseBtn = document.getElementById('promise-btn');
+            const hiddenMessage = document.getElementById('hidden-message');
+            const canvas = document.getElementById('hearts-canvas');
+            const ctx = canvas.getContext('2d');
 
-        envelope.addEventListener('click', function() {
-            if (this.classList.contains('open')) return;
-            this.classList.add('open');
-            letter.classList.add('visible');
-            showSection('puzzle1');
-        }, { once: true });
+            let hearts = [];
+            let animationFrameId;
 
-        function showSection(id) {
-            const section = document.getElementById(id);
-            if(section) {
-                setTimeout(() => { section.style.display = 'block'; }, 500);
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
             }
-        }
-        
-        function hideSection(id) {
-             const section = document.getElementById(id.split('-')[0]);
-             if (section) section.style.display = 'none';
-        }
 
-        function checkAnswer(puzzleBtnId, inputId, correctAnswer, nextPartId, nextPuzzleId) {
-            const btn = document.getElementById(puzzleBtnId);
-            const input = document.getElementById(inputId);
-            
-            btn.addEventListener('click', () => {
-                if (input.value.trim().toLowerCase() === correctAnswer) {
-                    hideSection(inputId);
-                    showSection(nextPartId);
-                    if (nextPuzzleId) {
-                        showSection(nextPuzzleId);
-                    } else {
-                        setTimeout(createConstellation, 3000);
+            // Heart class
+            class Heart {
+                constructor(x, y, size, speed) {
+                    this.x = x;
+                    this.y = y;
+                    this.size = size;
+                    this.speed = speed;
+                    this.opacity = 1;
+                    this.color = `rgba(225, 29, 72, ${Math.random() * 0.5 + 0.5})`; // Random rose color
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y + this.size / 4);
+                    ctx.quadraticCurveTo(this.x, this.y, this.x + this.size / 4, this.y);
+                    ctx.quadraticCurveTo(this.x + this.size / 2, this.y, this.x + this.size / 2, this.y + this.size / 4);
+                    ctx.quadraticCurveTo(this.x + this.size / 2, this.y, this.x + (3 * this.size) / 4, this.y);
+                    ctx.quadraticCurveTo(this.x + this.size, this.y, this.x + this.size, this.y + this.size / 4);
+                    ctx.quadraticCurveTo(this.x + this.size, this.y + this.size / 2, this.x + (3 * this.size) / 4, this.y + (3 * this.size) / 4);
+                    ctx.lineTo(this.x + this.size / 2, this.y + this.size);
+                    ctx.lineTo(this.x + this.size / 4, this.y + (3 * this.size) / 4);
+                    ctx.quadraticCurveTo(this.x, this.y + this.size / 2, this.x, this.y + this.size / 4);
+                    ctx.fillStyle = this.color.replace(/, [0-9.]+\)/, `, ${this.opacity})`);
+                    ctx.fill();
+                    ctx.closePath();
+                }
+
+                update() {
+                    this.y += this.speed;
+                    if (this.y > canvas.height + this.size) {
+                        this.y = -this.size; // Reset position when it goes off screen
+                        this.x = Math.random() * canvas.width;
                     }
+                    this.opacity -= 0.003; // Fade out slowly
+                }
+            }
+
+            function createHearts() {
+                hearts = [];
+                const heartCount = 100;
+                for (let i = 0; i < heartCount; i++) {
+                    const size = Math.random() * 20 + 10;
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height - canvas.height; // Start above the screen
+                    const speed = Math.random() * 2 + 1;
+                    hearts.push(new Heart(x, y, size, speed));
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                hearts.forEach((heart, index) => {
+                    if (heart.opacity <= 0) {
+                        hearts.splice(index, 1); // Remove faded hearts
+                    } else {
+                        heart.update();
+                        heart.draw();
+                    }
+                });
+                if (hearts.length > 0) {
+                    animationFrameId = requestAnimationFrame(animate);
                 } else {
-                    input.classList.add('shake');
-                    setTimeout(() => input.classList.remove('shake'), 500);
+                    // Clear canvas completely when done
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                 }
-            });
-        }
-        
-        checkAnswer('puzzle1-btn', 'puzzle1-input', answer1, 'part2', 'puzzle2');
-        checkAnswer('puzzle2-btn', 'puzzle2-input', answer2, 'part3', 'puzzle3');
-        checkAnswer('puzzle3-btn', 'puzzle3-input', answer3, 'part4', null);
-        
-        function createConstellation() {
-            const sky = document.getElementById('star-sky');
-            sky.classList.add('visible');
-            const letterBox = document.getElementById('letter-container').getBoundingClientRect();
-            
-            const availableSpace = [
-                { top: 0, left: 0, width: window.innerWidth, height: letterBox.top },
-                { top: letterBox.bottom, left: 0, width: window.innerWidth, height: window.innerHeight - letterBox.bottom },
-                { top: 0, left: 0, width: letterBox.left, height: window.innerHeight },
-                { top: 0, left: letterBox.right, width: window.innerWidth - letterBox.right, height: window.innerHeight }
-            ];
-            
-            const wordsPerSpace = Math.ceil(constellationWords.length / availableSpace.length);
+            }
 
-            let wordIndex = 0;
-            availableSpace.forEach(space => {
-                for (let i = 0; i < wordsPerSpace && wordIndex < constellationWords.length; i++) {
-                    const star = document.createElement('span');
-                    star.className = 'star-word';
-                    star.textContent = constellationWords[wordIndex++];
-                    
-                    const x = space.left + Math.random() * space.width;
-                    const y = space.top + Math.random() * space.height;
+            promiseBtn.addEventListener('click', () => {
+                // Show the hidden message
+                hiddenMessage.style.display = 'block';
+                hiddenMessage.classList.add('fade-in');
 
-                    star.style.left = `${Math.min(x, window.innerWidth - 150)}px`;
-                    star.style.top = `${Math.min(y, window.innerHeight - 50)}px`;
-                    
-                    star.style.animationDelay = `${Math.random() * 2 + 1}s`;
-                    sky.appendChild(star);
+                // Start heart animation
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
                 }
+                createHearts();
+                animate();
             });
-        }
+
+            // Initial setup
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // Trigger animations on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        });
     </script>
+
 </body>
 </html>
