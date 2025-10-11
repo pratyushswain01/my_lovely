@@ -3,233 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For My Lovely</title>
+    <title>A Question for My Aishu</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+    <!-- Heart icon for the favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>">
     <style>
-        /* Custom styles to enhance the design */
         body {
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif;
+            background-color: #1e0a3c; /* Deep night sky purple */
+            color: #f3e8ff; /* Soft lavender text */
         }
-        .font-display {
-            font-family: 'Playfair Display', serif;
+        h1, h2, h3 {
+            font-family: 'Dancing Script', cursive;
         }
-        /* Heart animation canvas */
-        #hearts-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999;
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
         }
-        /* Fade-in animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
-        .fade-in {
-            animation: fadeIn 1s ease-out forwards;
+        #no-button {
+            position: absolute;
+            transition: all 0.3s ease;
         }
-        /* Apply staggered animations */
-        .fade-in-1 { animation-delay: 0.2s; }
-        .fade-in-2 { animation-delay: 0.4s; }
-        .fade-in-3 { animation-delay: 0.6s; }
-        .fade-in-4 { animation-delay: 0.8s; }
-        .fade-in-5 { animation-delay: 1s; }
-        .fade-in-6 { animation-delay: 1.2s; }
+        .ring-sparkle {
+            animation: sparkle 2s infinite ease-in-out;
+            filter: drop-shadow(0 0 10px rgba(255, 223, 186, 0.9));
+        }
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            top: -20px;
+            animation: drop 4s linear infinite;
+        }
+        @keyframes drop {
+            0% { transform: translateY(0vh) rotateZ(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotateZ(720deg); opacity: 0; }
+        }
+        .starry-sky {
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            overflow: hidden;
+            position: relative;
+        }
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle linear infinite;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
     </style>
 </head>
-<body class="bg-rose-50 text-slate-800">
+<body class="overflow-x-hidden">
 
-    <!-- Canvas for the heart animation -->
-    <canvas id="hearts-canvas"></canvas>
+    <div id="confetti-container" class="fixed top-0 left-0 w-full h-full pointer-events-none z-50"></div>
 
-    <div class="container mx-auto px-4 py-8 md:py-16 max-w-4xl">
+    <!-- Hero Section -->
+    <section id="hero" class="h-screen w-screen flex flex-col justify-center items-center text-center p-6 starry-sky">
+        <div id="stars-container"></div>
+        <h1 class="text-6xl md:text-8xl text-pink-300 font-bold reveal-on-scroll z-10">To My Aishu Babyy</h1>
+        <p class="mt-4 text-lg md:text-xl text-purple-300 max-w-2xl reveal-on-scroll z-10" style="transition-delay: 200ms;">Before you, my world was just a world. With you, it became a universe filled with stars. This is for you...</p>
+        <button onclick="document.getElementById('journey').scrollIntoView({ behavior: 'smooth' })" class="mt-8 px-8 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-600 transition duration-300 transform hover:scale-105 reveal-on-scroll z-10" style="transition-delay: 400ms;">
+            Start Our Story
+        </button>
+    </section>
 
-        <!-- Header Section -->
-        <header class="text-center mb-12 md:mb-20">
-            <h1 class="font-display text-4xl md:text-6xl text-rose-800 mb-2 fade-in fade-in-1" style="opacity:0;">For My One and Only, Lovely</h1>
-            <p class="text-lg text-slate-600 fade-in fade-in-2" style="opacity:0;">Words can't fix what I broke, but I hope they can start to mend it.</p>
-        </header>
+    <!-- Our Story Section -->
+    <section id="journey" class="py-20 px-6 bg-gradient-to-b from-[#1e0a3c] to-[#3a0f5a]">
+        <div class="max-w-4xl mx-auto space-y-20">
+            <h2 class="text-5xl md:text-6xl text-center font-bold text-pink-300 mb-16 reveal-on-scroll">A Love Written in the Stars</h2>
 
-        <main class="space-y-12">
+            <!-- Chapter 1 -->
+            <div class="text-center reveal-on-scroll">
+                 <h3 class="text-4xl font-bold text-pink-400">Our Symphony</h3>
+                 <p class="mt-4 text-lg max-w-2xl mx-auto text-purple-200">They say love is a feeling, but with you, it's a symphony. It’s in the quiet moments, the loud laughter, the way my heart beats just for you. You are the music that my soul dances to, the most beautiful song I have ever heard.</p>
+            </div>
 
-            <!-- The Apology Section -->
-            <section class="bg-white p-8 rounded-2xl shadow-lg fade-in fade-in-3" style="opacity:0;">
-                <h2 class="font-display text-3xl text-rose-700 mb-4">I Am So Incredibly Sorry.</h2>
-                <p class="text-slate-600 leading-relaxed">
-                    Lovely, there's no excuse for my words. I was thoughtless and careless, and I deeply regret hurting you. My foolish attempt at a joke was just that – foolish. It was never my intention to make you feel compared or unappreciated. Seeing you hurt because of my stupidity is the worst feeling in the world. From the bottom of my heart, I am truly sorry.
-                </p>
-            </section>
+            <!-- Chapter 2 -->
+             <div class="text-center reveal-on-scroll">
+                 <h3 class="text-4xl font-bold text-pink-400">A Universe of Dreams</h3>
+                 <p class="mt-4 text-lg max-w-2xl mx-auto text-purple-200">I never knew what my dreams were until I met you. Now, they all start and end with your smile. You are my greatest adventure, my most beautiful dream, and my safest home, all in one.</p>
+            </div>
+            
+            <!-- Chapter 3 -->
+             <div class="text-center reveal-on-scroll">
+                 <h3 class="text-4xl font-bold text-pink-400">My Forever</h3>
+                 <p class="mt-4 text-lg max-w-2xl mx-auto text-purple-200">Forever used to be a scary word. But the thought of a forever with you feels like peace. It’s a promise I want to make, a journey I want to take, a lifetime of sunrises I only want to see with you by my side.</p>
+            </div>
+        </div>
+    </section>
 
-            <!-- What I Did vs. What I Meant Section -->
-            <section class="bg-white p-8 rounded-2xl shadow-lg fade-in fade-in-4" style="opacity:0;">
-                <h2 class="font-display text-3xl text-rose-700 mb-4">My Mistake & My Meaning</h2>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div>
-                        <h3 class="font-bold text-xl mb-2 text-rose-500">What I Did Wrong</h3>
-                        <p class="text-slate-600 leading-relaxed">
-                            I brought up the past and made a comparison that was completely unfair and uncalled for. It was insensitive, and it invalidated your feelings and our beautiful relationship. I broke your trust by making you feel like you were being measured against someone else.
-                        </p>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-xl mb-2 text-green-600">What I Truly Meant</h3>
-                        <p class="text-slate-600 leading-relaxed">
-                           There is no comparison. You are my present and my future. My past is irrelevant. What I was trying to do, in a clumsy and stupid way, was highlight how much better my life is with you in it. But my words failed completely. You are in a league of your own, and no one else even comes close.
-                        </p>
-                    </div>
-                </div>
-            </section>
+    <!-- The Big Question Section -->
+    <section class="py-20 px-6 text-center bg-[#3a0f5a]">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-5xl md:text-6xl font-bold text-pink-300 reveal-on-scroll">From My Heart to Yours...</h2>
+            <p class="mt-4 text-xl text-purple-200 reveal-on-scroll" style="transition-delay: 200ms;">My life is infinitely better because you are in it. You are my love, my best friend, my everything. And so, my life partner, I have to ask you something...</p>
+            <button id="reveal-button" class="mt-8 px-10 py-4 bg-pink-500 text-white font-bold text-xl rounded-full shadow-lg hover:bg-pink-600 transition duration-300 transform hover:scale-105 reveal-on-scroll" style="transition-delay: 400ms;">
+                My Question for You
+            </button>
+        </div>
+    </section>
 
-            <!-- Why You're Irreplaceable Section -->
-            <section class="bg-white p-8 rounded-2xl shadow-lg fade-in fade-in-5" style="opacity:0;">
-                <h2 class="font-display text-3xl text-rose-700 mb-4">Why You're Irreplaceable</h2>
-                <p class="text-slate-600 leading-relaxed mb-6">
-                    I love you for who you are. The little things, the big things, everything. I love...
-                </p>
-                <ul class="list-disc list-inside text-slate-600 space-y-2">
-                    <li>The way your eyes light up when you talk about something you're passionate about.</li>
-                    <li>Your kindness, not just to me, but to everyone around you.</li>
-                    <li>Your incredible sense of humor that can make me laugh even on the worst days.</li>
-                    <li>How you always know how to challenge me and make me a better person.</li>
-                </ul>
-                <p class="text-slate-600 leading-relaxed mt-6">
-                    You are my best friend and the love of my life. There is no one else like you.
-                </p>
-            </section>
-
-            <!-- A Promise & A Hope Section -->
-            <section class="text-center p-8 fade-in fade-in-6" style="opacity:0;">
-                <h2 class="font-display text-3xl text-rose-700 mb-4">My Promise to You</h2>
-                <p class="text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
-                    I promise to be more mindful of my words and more deserving of your heart. I promise to cherish what we have and never take it for granted again. My focus is on you, on us, and on our future.
-                </p>
-                <button id="promise-btn" class="bg-rose-600 text-white font-bold py-3 px-8 rounded-full hover:bg-rose-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-rose-300">
-                    A small gesture for you...
+    <!-- Proposal Modal -->
+    <div id="proposal-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-40 hidden transition-opacity duration-500">
+        <div id="modal-content" class="bg-purple-100 p-8 md:p-12 rounded-3xl shadow-2xl text-center transform scale-90 opacity-0 transition-all duration-500 max-w-lg w-11/12">
+            <svg class="w-24 h-24 mx-auto mb-6 text-pink-400 ring-sparkle" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 <path d="M41.75 51.5833C39.0833 46.25 35.5833 40.25 30.5 36.5C23.0833 30.25 15.5833 29.5833 10.5 33.75C5.41667 37.9167 5.75 45.4167 11.5 52.4167C17.25 59.4167 25.5833 63.25 32.5 62C38.1667 61 42.75 56.5833 41.75 51.5833Z" fill="#fbcfe8"/>
+                <path d="M50 75C66.5685 75 80 61.5685 80 45C80 28.4315 66.5685 15 50 15C33.4315 15 20 28.4315 20 45C20 61.5685 33.4315 75 50 75Z" stroke="#f472b6" stroke-width="5"/>
+                <path d="M50 75C58.2843 75 65 68.2843 65 60C65 51.7157 58.2843 45 50 45C41.7157 45 35 51.7157 35 60C35 68.2843 41.7157 75 50 75Z" stroke="#f472b6" stroke-width="5"/>
+                <path d="M50 45C54.1421 45 57.5 41.6421 57.5 37.5C57.5 33.3579 54.1421 30 50 30C45.8579 30 42.5 33.3579 42.5 37.5C42.5 41.6421 45.8579 45 50 45Z" fill="#f472b6"/>
+                <path d="M30.5 36.5L42.5 37.5L50 30L41.75 25C37.5 22 30.0833 26.5833 30.5 36.5Z" fill="#fce7f3"/>
+            </svg>
+            <h2 class="text-4xl md:text-5xl font-bold text-purple-900" style="font-family: 'Dancing Script', cursive;">Will You Make Me the Happiest Person Alive?</h2>
+            <p class="mt-4 text-lg text-purple-800">My Aishu Babyy... Will you marry me?</p>
+            
+            <div class="mt-8 relative h-24 flex justify-center items-center">
+                <button id="yes-button" class="px-12 py-4 bg-green-500 text-white font-bold text-xl rounded-full shadow-lg hover:bg-green-600 transition duration-300 transform hover:scale-110">
+                    YES!
                 </button>
-                <p id="hidden-message" class="text-rose-800 mt-6 text-xl font-display" style="display: none;">You are my everything, Lovely.</p>
-            </section>
-
-        </main>
+                <button id="no-button" class="px-4 py-2 bg-gray-300 text-gray-600 font-semibold rounded-full shadow hover:bg-gray-400 transition duration-300" style="left: 65%;">
+                    No
+                </button>
+            </div>
+        </div>
+    </div>
+    
+     <div id="celebration-message" class="fixed inset-0 bg-pink-500 bg-opacity-95 flex justify-center items-center z-40 hidden transition-opacity duration-500">
+        <div class="text-center text-white p-8">
+             <h1 class="text-5xl md:text-7xl font-bold">She Said YES!</h1>
+             <p class="mt-4 text-2xl">My love, my life, my forever starts now. I love you, Aishu.</p>
+        </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const promiseBtn = document.getElementById('promise-btn');
-            const hiddenMessage = document.getElementById('hidden-message');
-            const canvas = document.getElementById('hearts-canvas');
-            const ctx = canvas.getContext('2d');
-
-            let hearts = [];
-            let animationFrameId;
-
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+        // --- Starry Sky ---
+        function createStars() {
+            const container = document.getElementById('hero');
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                const size = Math.random() * 3;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                container.appendChild(star);
             }
+        }
 
-            // Heart class
-            class Heart {
-                constructor(x, y, size, speed) {
-                    this.x = x;
-                    this.y = y;
-                    this.size = size;
-                    this.speed = speed;
-                    this.opacity = 1;
-                    this.color = `rgba(225, 29, 72, ${Math.random() * 0.5 + 0.5})`; // Random rose color
-                }
-
-                draw() {
-                    ctx.beginPath();
-                    ctx.moveTo(this.x, this.y + this.size / 4);
-                    ctx.quadraticCurveTo(this.x, this.y, this.x + this.size / 4, this.y);
-                    ctx.quadraticCurveTo(this.x + this.size / 2, this.y, this.x + this.size / 2, this.y + this.size / 4);
-                    ctx.quadraticCurveTo(this.x + this.size / 2, this.y, this.x + (3 * this.size) / 4, this.y);
-                    ctx.quadraticCurveTo(this.x + this.size, this.y, this.x + this.size, this.y + this.size / 4);
-                    ctx.quadraticCurveTo(this.x + this.size, this.y + this.size / 2, this.x + (3 * this.size) / 4, this.y + (3 * this.size) / 4);
-                    ctx.lineTo(this.x + this.size / 2, this.y + this.size);
-                    ctx.lineTo(this.x + this.size / 4, this.y + (3 * this.size) / 4);
-                    ctx.quadraticCurveTo(this.x, this.y + this.size / 2, this.x, this.y + this.size / 4);
-                    ctx.fillStyle = this.color.replace(/, [0-9.]+\)/, `, ${this.opacity})`);
-                    ctx.fill();
-                    ctx.closePath();
-                }
-
-                update() {
-                    this.y += this.speed;
-                    if (this.y > canvas.height + this.size) {
-                        this.y = -this.size; // Reset position when it goes off screen
-                        this.x = Math.random() * canvas.width;
-                    }
-                    this.opacity -= 0.003; // Fade out slowly
-                }
-            }
-
-            function createHearts() {
-                hearts = [];
-                const heartCount = 100;
-                for (let i = 0; i < heartCount; i++) {
-                    const size = Math.random() * 20 + 10;
-                    const x = Math.random() * canvas.width;
-                    const y = Math.random() * canvas.height - canvas.height; // Start above the screen
-                    const speed = Math.random() * 2 + 1;
-                    hearts.push(new Heart(x, y, size, speed));
-                }
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                hearts.forEach((heart, index) => {
-                    if (heart.opacity <= 0) {
-                        hearts.splice(index, 1); // Remove faded hearts
-                    } else {
-                        heart.update();
-                        heart.draw();
-                    }
-                });
-                if (hearts.length > 0) {
-                    animationFrameId = requestAnimationFrame(animate);
-                } else {
-                    // Clear canvas completely when done
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                }
-            }
-
-            promiseBtn.addEventListener('click', () => {
-                // Show the hidden message
-                hiddenMessage.style.display = 'block';
-                hiddenMessage.classList.add('fade-in');
-
-                // Start heart animation
-                if (animationFrameId) {
-                    cancelAnimationFrame(animationFrameId);
-                }
-                createHearts();
-                animate();
+        // --- Reveal on Scroll Logic ---
+        const scrollElements = document.querySelectorAll(".reveal-on-scroll");
+        const elementInView = (el) => {
+            const elementTop = el.getBoundingClientRect().top;
+            return (elementTop <= (window.innerHeight || document.documentElement.clientHeight) - 100);
+        };
+        const displayScrollElement = (element) => element.classList.add("visible");
+        const handleScrollAnimation = () => {
+            scrollElements.forEach((el) => {
+                if (elementInView(el)) displayScrollElement(el);
             });
+        };
+        window.addEventListener("scroll", handleScrollAnimation);
+        
+        // --- Modal & Proposal Logic ---
+        const revealButton = document.getElementById('reveal-button');
+        const proposalModal = document.getElementById('proposal-modal');
+        const modalContent = document.getElementById('modal-content');
+        const yesButton = document.getElementById('yes-button');
+        const noButton = document.getElementById('no-button');
+        const celebrationMessage = document.getElementById('celebration-message');
 
-            // Initial setup
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            // Trigger animations on scroll
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = 1;
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1 });
-
-            document.querySelectorAll('.fade-in').forEach(el => {
-                observer.observe(el);
-            });
+        revealButton.addEventListener('click', () => {
+            proposalModal.classList.remove('hidden');
+            setTimeout(() => {
+                proposalModal.style.opacity = '1';
+                modalContent.style.opacity = '1';
+                modalContent.style.transform = 'scale(1)';
+            }, 50);
         });
-    </script>
 
+        noButton.addEventListener('mouseover', () => {
+            const modalBounds = modalContent.getBoundingClientRect();
+            const buttonBounds = noButton.getBoundingClientRect();
+            const newLeft = Math.random() * (modalBounds.width - buttonBounds.width);
+            const newTop = Math.random() * (modalBounds.height - buttonBounds.height);
+            noButton.style.position = 'absolute';
+            noButton.style.left = `${newLeft}px`;
+            noButton.style.top = `${newTop}px`;
+        });
+        
+        yesButton.addEventListener('click', () => {
+            modalContent.style.opacity = '0';
+            modalContent.style.transform = 'scale(0.9)';
+            proposalModal.style.opacity = '0';
+            setTimeout(() => proposalModal.classList.add('hidden'), 500);
+            
+            startConfetti();
+            celebrationMessage.classList.remove('hidden');
+            setTimeout(() => celebrationMessage.style.opacity = '1', 50);
+        });
+        
+        // --- Confetti Logic ---
+        function startConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#fff'];
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti-piece');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 4 + 's';
+                const size = Math.random() * 10 + 5;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                container.appendChild(confetti);
+            }
+        }
+        
+        // Initial load animations
+        window.onload = () => {
+            createStars();
+            handleScrollAnimation();
+        };
+    </script>
 </body>
 </html>
+
